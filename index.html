@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Học Bảng Cửu Chương</title>
+    <title>ANH DUC DEP TRAI S1TG</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -237,6 +237,105 @@
             color: #fff;
             border-color: var(--magenta);
             box-shadow: 0 0 8px var(--magenta), 0 0 22px rgba(255,46,230,0.6);
+        }
+
+        /* ===== Thanh số dư + nút tuỳ chỉnh ở màn hình chính ===== */
+        .balance-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        #balance-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--green);
+            text-shadow: 0 0 8px rgba(57,255,20,0.5);
+        }
+        #balance-display.balance-negative {
+            color: var(--red);
+            text-shadow: 0 0 8px rgba(255,41,101,0.6);
+        }
+        .balance-custom-btn {
+            padding: 7px 12px;
+            font-size: 11px;
+            border-radius: 8px;
+            background: rgba(139,46,255,0.12);
+            border: 1px solid rgba(139,46,255,0.5);
+            color: var(--purple);
+        }
+        .balance-custom-btn:hover {
+            box-shadow: 0 0 10px rgba(139,46,255,0.5);
+        }
+
+        /* ===== Modal tuỳ chỉnh số dư (yêu cầu mật khẩu) ===== */
+        #balance-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2,3,10,0.78);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            padding: 16px;
+        }
+        #balance-modal-overlay.hidden { display: none; }
+        .balance-modal-card {
+            position: relative;
+            width: 280px;
+            max-width: 100%;
+            background: var(--panel);
+            border: 1px solid rgba(0,246,255,0.4);
+            border-radius: 18px;
+            padding: 26px 20px 20px;
+            box-shadow: 0 0 20px rgba(0,246,255,0.4), 0 0 50px rgba(139,46,255,0.3);
+            text-align: center;
+        }
+        .balance-modal-card .back-btn {
+            top: 8px;
+            left: 8px;
+            width: 34px;
+            height: 34px;
+            font-size: 16px;
+        }
+        .balance-modal-faces {
+            font-size: 34px;
+            margin-bottom: 10px;
+            letter-spacing: 10px;
+        }
+        .balance-modal-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        .balance-modal-current {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--cyan);
+            text-shadow: 0 0 8px rgba(0,246,255,0.5);
+            margin-bottom: 10px;
+        }
+        .balance-modal-error {
+            color: var(--red);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .balance-modal-error.hidden { display: none; }
+        .balance-modal-dollar {
+            font-size: 40px;
+            margin-top: 10px;
+            color: var(--green);
+            text-shadow: 0 0 10px rgba(57,255,20,0.6), 0 0 24px rgba(139,46,255,0.4);
+        }
+        .balance-modal-card button[onclick^="submitBalance"] {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: #04060d;
+            border: none;
+            width: 100%;
         }
 
         .back-btn {
@@ -717,8 +816,34 @@
 
     <div id="feedback-overlay"><span class="fx-text" id="fx-text"></span></div>
 
+    <div id="balance-modal-overlay" class="hidden">
+        <div class="balance-modal-card">
+            <button class="back-btn" onclick="closeBalanceModal()">⬅</button>
+
+            <div id="balance-modal-password-view">
+                <div class="balance-modal-faces">🙂 🙂</div>
+                <p class="balance-modal-label">Nhập mật khẩu để tuỳ chỉnh số dư</p>
+                <input type="password" id="balance-password-input" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter') submitBalancePassword()">
+                <button onclick="submitBalancePassword()" style="width:100%;">Vào</button>
+                <p id="balance-password-error" class="balance-modal-error hidden">Sai mật khẩu, thử lại nhé!</p>
+            </div>
+
+            <div id="balance-modal-adjust-view" class="hidden">
+                <div class="balance-modal-faces">🙂 🙂</div>
+                <p class="balance-modal-current">Số dư hiện tại: <span id="balance-modal-current-num">0</span> VNĐ</p>
+                <input type="number" id="balance-adjust-input" placeholder="Nhập số (vd: 100 hoặc -100)" onkeydown="if(event.key==='Enter') submitBalanceAdjust()">
+                <button onclick="submitBalanceAdjust()" style="width:100%;">Vào</button>
+                <div class="balance-modal-dollar">$</div>
+            </div>
+        </div>
+    </div>
+
     <div class="container" id="main-menu">
-        <h2>Học toán đi em 2 ai :)</h2>
+        <div class="balance-bar">
+            <span id="balance-display">Số dư: 0 VNĐ</span>
+            <button class="balance-custom-btn" onclick="openBalanceModal()">⚙ Tuỳ chỉnh</button>
+        </div>
+        <h2>Học toán đi em zai:)))</h2>
         <div class="menu-grid">
             <button class="op-category-box" onclick="showScreen('submenu-pm')">
                 <span>+</span><span class="cat-divider">−</span>
@@ -745,7 +870,7 @@
             <button class="op-select-box" onclick="openDifficultyMenu('sub')">−</button>
         </div>
         <div class="digit-level-section">
-            <div class="digit-level-label">Độ khó (số chữ số)</div>
+            <div class="digit-level-label">CHỮ SỐ</div>
             <div class="digit-level-grid">
                 <button class="digit-level-box selected" data-level="2" onclick="selectDigitLevel(2)">2</button>
                 <button class="digit-level-box" data-level="3" onclick="selectDigitLevel(3)">3</button>
@@ -820,6 +945,8 @@
     let questionStartTime = 0, sessionQuestionTimes = [];
     const HISTORY_KEY = 'mtc_history_v1';
     const HISTORY_MAX = 10;
+    const BALANCE_KEY = 'mtc_balance_v1';
+    const BALANCE_PASSWORD = 'duc123';
 
     // ---- các phép tính hỗ trợ: symbol hiển thị, tên gọi, và submenu cha
     // (dùng để nút back trên màn hình chọn bảng biết quay về đâu) ----
@@ -1373,6 +1500,67 @@
     }
     // -------------------------------------------------------------------------
 
+    // ---- tài khoản làm bài: đúng 1 câu +10 VNĐ, sai 1 câu -10 VNĐ, có thể
+    // âm; lưu theo từng thiết bị (localStorage), giống lịch sử làm bài ----
+    function loadBalance() {
+        const v = parseInt(localStorage.getItem(BALANCE_KEY));
+        return isNaN(v) ? 0 : v;
+    }
+
+    function saveBalance(v) {
+        try { localStorage.setItem(BALANCE_KEY, v); } catch (e) { /* bỏ qua nếu không lưu được */ }
+    }
+
+    function addToBalance(delta) {
+        const newBal = loadBalance() + delta;
+        saveBalance(newBal);
+        updateBalanceDisplay();
+    }
+
+    function updateBalanceDisplay() {
+        const el = document.getElementById('balance-display');
+        if (!el) return;
+        const bal = loadBalance();
+        el.innerText = `Số dư: ${bal.toLocaleString('vi-VN')} VNĐ`;
+        el.classList.toggle('balance-negative', bal < 0);
+    }
+
+    // ---- modal tuỳ chỉnh số dư: phải nhập đúng mật khẩu mới thấy được
+    // và chỉnh được số dư (nhập số dương để cộng thêm, số âm để trừ bớt) ----
+    function openBalanceModal() {
+        document.getElementById('balance-modal-overlay').classList.remove('hidden');
+        document.getElementById('balance-modal-password-view').classList.remove('hidden');
+        document.getElementById('balance-modal-adjust-view').classList.add('hidden');
+        document.getElementById('balance-password-input').value = '';
+        document.getElementById('balance-password-error').classList.add('hidden');
+    }
+
+    function closeBalanceModal() {
+        document.getElementById('balance-modal-overlay').classList.add('hidden');
+    }
+
+    function submitBalancePassword() {
+        const val = document.getElementById('balance-password-input').value;
+        if (val === BALANCE_PASSWORD) {
+            document.getElementById('balance-modal-password-view').classList.add('hidden');
+            document.getElementById('balance-modal-adjust-view').classList.remove('hidden');
+            document.getElementById('balance-modal-current-num').innerText = loadBalance().toLocaleString('vi-VN');
+            document.getElementById('balance-adjust-input').value = '';
+        } else {
+            document.getElementById('balance-password-error').classList.remove('hidden');
+        }
+    }
+
+    function submitBalanceAdjust() {
+        const raw = document.getElementById('balance-adjust-input').value;
+        const delta = parseInt(raw);
+        if (isNaN(delta)) return;
+        addToBalance(delta);
+        document.getElementById('balance-modal-current-num').innerText = loadBalance().toLocaleString('vi-VN');
+        document.getElementById('balance-adjust-input').value = '';
+    }
+    // -------------------------------------------------------------------------
+
     function addDigit(n) { document.getElementById('answer').value += n; }
     function clearInput() {
         const el = document.getElementById('answer');
@@ -1439,8 +1627,8 @@
         let elapsed = (Date.now() - questionStartTime) / 1000;
         sessionQuestionTimes.push(elapsed);
 
-        if (isCorrect) scoreRight++;
-        else { scoreWrong++; scheduleRetry(currentQuestion); }
+        if (isCorrect) { scoreRight++; addToBalance(10); }
+        else { scoreWrong++; addToBalance(-10); scheduleRetry(currentQuestion); }
         document.getElementById('score-right').innerText = scoreRight;
         document.getElementById('score-wrong').innerText = scoreWrong;
 
@@ -1449,8 +1637,9 @@
         setTimeout(nextQuestion, 500);
     }
 
-    // hiển thị lịch sử đã lưu ngay khi mở trang
+    // hiển thị lịch sử và số dư đã lưu ngay khi mở trang
     renderHistory();
+    updateBalanceDisplay();
 </script>
 </body>
 </html>
