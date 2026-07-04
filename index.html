@@ -22,6 +22,21 @@
 
         * { box-sizing: border-box; }
 
+        /* tắt bôi chọn / menu copy-tìm-kiếm khi bấm giữ (long-press) trên
+           điện thoại, và tắt viền xanh khi chạm trên di động */
+        html, body, button, h1, h2, h3, span, div, p {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        input {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
         body {
             font-family: 'Rajdhani', sans-serif;
             text-align: center;
@@ -836,7 +851,7 @@
         }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <div class="music-controls">
         <button id="track-btn" onclick="switchTrack()">🔄 Nhạc 1</button>
@@ -881,7 +896,7 @@
             <span id="balance-display">Số dư: 0 VNĐ</span>
             <button class="balance-custom-btn" onclick="openBalanceModal()">⚙ Tuỳ chỉnh</button>
         </div>
-        <h2>Học toán đi em zai:)))</h2>
+        <h2>Học toán đi em zaii😨❤</h2>
         <div class="menu-grid">
             <button class="op-category-box" onclick="showScreen('submenu-pm')">
                 <span>+</span><span class="cat-divider">−</span>
