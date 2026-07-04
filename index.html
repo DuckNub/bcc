@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DUC DEP TRAI S1TG</title>
+    <title>Học Bảng Cửu Chương</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -90,7 +90,7 @@
             margin-top: 0;
         }
 
-        #start-screen h2 {
+        #main-menu h2, #submenu-pm h2, #submenu-td h2, #difficulty-screen h2, #start-screen h2 {
             color: var(--cyan);
             text-shadow: 0 0 6px var(--cyan), 0 0 22px rgba(0,246,255,0.6);
             animation: flicker 4s infinite;
@@ -105,6 +105,156 @@
             grid-template-columns: repeat(5, 1fr);
             gap: 8px;
             margin: 15px 0;
+        }
+
+        /* ===== Menu screens: category picker & operator picker ===== */
+        .menu-grid {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin: 22px 0 10px;
+            flex-wrap: wrap;
+        }
+
+        .op-category-box, .op-select-box {
+            width: 130px;
+            height: 130px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0,246,255,0.4);
+            border-radius: 16px;
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .op-category-box:hover, .op-select-box:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 14px rgba(0,246,255,0.5), 0 0 30px rgba(139,46,255,0.3);
+            transform: translateY(-2px);
+        }
+        .op-category-box:active, .op-select-box:active { transform: translateY(0) scale(0.96); }
+
+        .op-category-box span {
+            font-size: 42px;
+            line-height: 1.1;
+        }
+        .op-category-box .cat-divider {
+            font-size: 34px;
+            color: var(--magenta);
+            text-shadow: 0 0 8px rgba(255,46,230,0.6);
+        }
+
+        .op-select-box {
+            font-size: 56px;
+            background: linear-gradient(135deg, rgba(0,246,255,0.12), rgba(139,46,255,0.12));
+        }
+        .op-select-box:nth-child(2) {
+            background: linear-gradient(135deg, rgba(255,46,230,0.12), rgba(139,46,255,0.12));
+        }
+
+        .diff-grid {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin: 22px 0 10px;
+            flex-wrap: wrap;
+        }
+        .diff-box {
+            width: 100px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 17px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: rgba(255,255,255,0.04);
+        }
+        .diff-box:active { transform: scale(0.96); }
+        .diff-de {
+            border: 1px solid var(--green);
+            color: var(--green);
+            box-shadow: 0 0 10px rgba(57,255,20,0.25);
+        }
+        .diff-de:hover { box-shadow: 0 0 16px rgba(57,255,20,0.6); transform: translateY(-2px); }
+        .diff-thuong {
+            border: 1px solid var(--yellow);
+            color: var(--yellow);
+            box-shadow: 0 0 10px rgba(255,230,0,0.25);
+        }
+        .diff-thuong:hover { box-shadow: 0 0 16px rgba(255,230,0,0.6); transform: translateY(-2px); }
+        .diff-kho {
+            border: 1px solid var(--red);
+            color: var(--red);
+            box-shadow: 0 0 10px rgba(255,41,101,0.25);
+        }
+        .diff-kho:hover { box-shadow: 0 0 16px rgba(255,41,101,0.6); transform: translateY(-2px); }
+
+        /* ===== Digit-level (do kho theo so chu so) selector on submenu-pm ===== */
+        .digit-level-section {
+            margin-top: 20px;
+        }
+        .digit-level-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            color: var(--purple);
+            text-shadow: 0 0 8px rgba(139,46,255,0.7);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .digit-level-grid {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .digit-level-box {
+            width: 58px;
+            height: 58px;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 20px;
+            border: 1px solid rgba(0,246,255,0.4);
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .digit-level-box:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0,246,255,0.5);
+        }
+        .digit-level-box.selected {
+            background: linear-gradient(135deg, var(--magenta), var(--purple));
+            color: #fff;
+            border-color: var(--magenta);
+            box-shadow: 0 0 8px var(--magenta), 0 0 22px rgba(255,46,230,0.6);
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            font-size: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #submenu-pm, #submenu-td, #difficulty-screen, #start-screen {
+            position: relative;
+            padding-top: 60px;
         }
 
         button {
@@ -477,6 +627,35 @@
                 padding: 5px 8px;
                 font-size: 11px;
             }
+            .op-category-box, .op-select-box {
+                width: 110px;
+                height: 110px;
+            }
+            .op-category-box span { font-size: 34px; }
+            .op-category-box .cat-divider { font-size: 28px; }
+            .op-select-box { font-size: 46px; }
+            .menu-grid { gap: 12px; }
+            .diff-box {
+                width: 84px;
+                height: 76px;
+                font-size: 15px;
+            }
+            .diff-grid { gap: 10px; }
+            .digit-level-box {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+            .back-btn {
+                top: 12px;
+                left: 12px;
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+            #submenu-pm, #submenu-td, #start-screen {
+                padding-top: 52px;
+            }
         }
 
         @media (max-width: 340px) {
@@ -486,6 +665,23 @@
             }
             #question {
                 letter-spacing: 1px;
+            }
+            .op-category-box, .op-select-box {
+                width: 95px;
+                height: 95px;
+            }
+            .op-category-box span { font-size: 28px; }
+            .op-category-box .cat-divider { font-size: 22px; }
+            .op-select-box { font-size: 38px; }
+            .diff-box {
+                width: 72px;
+                height: 66px;
+                font-size: 13px;
+            }
+            .digit-level-box {
+                width: 46px;
+                height: 46px;
+                font-size: 16px;
             }
         }
     </style>
@@ -502,14 +698,16 @@
 
     <div id="feedback-overlay"><span class="fx-text" id="fx-text"></span></div>
 
-    <div class="container" id="start-screen">
-        <h2>HỌC ĐI EM ZAI:))</h2>
-        <div class="checkbox-group">
-            <script>for(let i=1; i<=10; i++) document.write(`<button onclick="this.classList.toggle('selected')">${i}</button>`);</script>
+    <div class="container" id="main-menu">
+        <h2>Học toán đi em 2 ai :)</h2>
+        <div class="menu-grid">
+            <button class="op-category-box" onclick="showScreen('submenu-pm')">
+                <span>+</span><span class="cat-divider">−</span>
+            </button>
+            <button class="op-category-box" onclick="showScreen('submenu-td')">
+                <span>×</span><span class="cat-divider">÷</span>
+            </button>
         </div>
-        <input type="number" id="total-questions" placeholder="Số câu hỏi">
-        <input type="number" id="time-limit" placeholder="Giây mỗi câu">
-        <button onclick="startGame()" style="width: 100%;">Bắt đầu học</button>
 
         <div class="history-section">
             <div class="history-header">
@@ -518,6 +716,53 @@
             </div>
             <div id="history-list"></div>
         </div>
+    </div>
+
+    <div class="container hidden" id="submenu-pm">
+        <button class="back-btn" onclick="showScreen('main-menu')">⬅</button>
+        <h2>Cộng trừ</h2>
+        <div class="menu-grid">
+            <button class="op-select-box" onclick="openDifficultyMenu('add')">+</button>
+            <button class="op-select-box" onclick="openDifficultyMenu('sub')">−</button>
+        </div>
+        <div class="digit-level-section">
+            <div class="digit-level-label">Độ khó (số chữ số)</div>
+            <div class="digit-level-grid">
+                <button class="digit-level-box selected" data-level="2" onclick="selectDigitLevel(2)">2</button>
+                <button class="digit-level-box" data-level="3" onclick="selectDigitLevel(3)">3</button>
+                <button class="digit-level-box" data-level="4" onclick="selectDigitLevel(4)">4</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container hidden" id="submenu-td">
+        <button class="back-btn" onclick="showScreen('main-menu')">⬅</button>
+        <h2>Nhân chia</h2>
+        <div class="menu-grid">
+            <button class="op-select-box" onclick="openSetup('mul')">×</button>
+            <button class="op-select-box" onclick="openSetup('div')">÷</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="difficulty-screen">
+        <button class="back-btn" onclick="showScreen(OPS[currentOperator].group)">⬅</button>
+        <h2 id="difficulty-title">Phép cộng</h2>
+        <div class="diff-grid">
+            <button class="diff-box diff-de" onclick="selectDifficulty('de')">Dễ</button>
+            <button class="diff-box diff-thuong" onclick="selectDifficulty('thuong')">Thường</button>
+            <button class="diff-box diff-kho" onclick="selectDifficulty('kho')">Khó</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="start-screen">
+        <button class="back-btn" onclick="showScreen(setupBackTarget)">⬅</button>
+        <h2 id="setup-title">Chọn bảng</h2>
+        <div class="checkbox-group">
+            <script>for(let i=1; i<=10; i++) document.write(`<button onclick="this.classList.toggle('selected')">${i}</button>`);</script>
+        </div>
+        <input type="number" id="total-questions" placeholder="Số câu hỏi">
+        <input type="number" id="time-limit" placeholder="Giây mỗi câu">
+        <button onclick="startGame()" style="width: 100%;">Bắt đầu học</button>
     </div>
 
     <div class="container hidden" id="game-screen">
@@ -557,6 +802,60 @@
     const HISTORY_KEY = 'mtc_history_v1';
     const HISTORY_MAX = 10;
 
+    // ---- các phép tính hỗ trợ: symbol hiển thị, tên gọi, và submenu cha
+    // (dùng để nút back trên màn hình chọn bảng biết quay về đâu) ----
+    const OPS = {
+        add: { symbol: '+', label: 'Phép cộng', group: 'submenu-pm', title: 'Chọn bảng cộng' },
+        sub: { symbol: '−', label: 'Phép trừ',  group: 'submenu-pm', title: 'Chọn bảng trừ' },
+        mul: { symbol: '×', label: 'Phép nhân', group: 'submenu-td', title: 'Chọn bảng nhân' },
+        div: { symbol: '÷', label: 'Phép chia', group: 'submenu-td', title: 'Chọn bảng chia' }
+    };
+    let currentOperator = 'mul';
+    let currentDifficulty = 'de';
+    let currentDigitLevel = 2; // dùng cho Cộng/Trừ: 2, 3 hoặc 4 chữ số
+    let setupBackTarget = 'main-menu';
+    const DIFF_LABELS = { de: 'Dễ', thuong: 'Thường', kho: 'Khó' };
+
+    // ---- điều hướng màn hình: ẩn tất cả .container, hiện đúng 1 cái ----
+    function showScreen(id) {
+        document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    // ---- chọn độ khó theo số chữ số (2/3/4) cho Cộng/Trừ, bật sáng như công tắc ----
+    function selectDigitLevel(n) {
+        currentDigitLevel = n;
+        document.querySelectorAll('#submenu-pm .digit-level-box').forEach(b => {
+            b.classList.toggle('selected', parseInt(b.dataset.level) === n);
+        });
+    }
+
+    // ---- mở màn hình chọn bảng (start-screen) cho nhân/chia ----
+    function openSetup(op) {
+        currentOperator = op;
+        document.getElementById('setup-title').innerText = OPS[op].title;
+        document.querySelector('#start-screen .checkbox-group').classList.remove('hidden');
+        document.querySelectorAll('#start-screen .checkbox-group button.selected')
+            .forEach(el => el.classList.remove('selected'));
+        setupBackTarget = OPS[op].group;
+        showScreen('start-screen');
+    }
+
+    // ---- cộng/trừ: mở màn hình chọn độ khó thay vì chọn bảng ----
+    function openDifficultyMenu(op) {
+        currentOperator = op;
+        document.getElementById('difficulty-title').innerText = `${OPS[op].label} - ${currentDigitLevel} chữ số`;
+        showScreen('difficulty-screen');
+    }
+
+    function selectDifficulty(diff) {
+        currentDifficulty = diff;
+        document.getElementById('setup-title').innerText = `${OPS[currentOperator].label} - ${currentDigitLevel} chữ số - Mức ${DIFF_LABELS[diff]}`;
+        document.querySelector('#start-screen .checkbox-group').classList.add('hidden');
+        setupBackTarget = 'difficulty-screen';
+        showScreen('start-screen');
+    }
+
     function toggleMusic() {
         if (isMusicPlaying) {
             audio.pause();
@@ -591,13 +890,20 @@
         }).catch(() => { /* bị chặn autoplay, chờ người dùng bấm nút */ });
     });
 
-    // ---- smart randomization: build every possible (t x m) combo, shuffle it,
-    // and draw without replacement per pass so repeats only happen once every
-    // full cycle through the combos (instead of pure independent random) ----
-    function buildCombos(tables) {
+    // ---- smart randomization: build every possible combo for nhân/chia,
+    // shuffle it, and draw without replacement per pass so repeats only
+    // happen once every full cycle through the combos ----
+    // t = số bảng đã chọn (1-10), m = số kèm theo (1-10)
+    function buildCombos(tables, operator) {
         let combos = [];
+        const symbol = OPS[operator].symbol;
         for (const t of tables) {
-            for (let m = 1; m <= 10; m++) combos.push({ t, m, res: t * m });
+            for (let m = 1; m <= 10; m++) {
+                let a, b, res;
+                if (operator === 'div') { a = t * m; b = t; res = m; }
+                else { a = t; b = m; res = t * m; } // mul
+                combos.push({ t, m, display: `${a} ${symbol} ${b} = ?`, res });
+            }
         }
         return combos;
     }
@@ -610,8 +916,8 @@
         return arr;
     }
 
-    function generateSessionPlan(n, tables) {
-        const combos = buildCombos(tables);
+    function generateSessionPlan(n, tables, operator) {
+        const combos = buildCombos(tables, operator);
         const queue = [];
         while (queue.length < n) {
             const pass = shuffle([...combos]);
@@ -626,24 +932,315 @@
     }
     // -------------------------------------------------------------------------
 
+    // ---- CỘNG / TRỪ CÓ NHỚ: sinh câu hỏi theo 3 mức độ (Dễ/Thường/Khó)
+    // và theo số chữ số (2/3/4) ----
+    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    // đếm số lần "nhớ" khi cộng a + b theo cột
+    function countCarries(a, b) {
+        let sa = a.toString(), sb = b.toString();
+        const len = Math.max(sa.length, sb.length);
+        sa = sa.padStart(len, '0'); sb = sb.padStart(len, '0');
+        let carry = 0, count = 0;
+        for (let i = len - 1; i >= 0; i--) {
+            const sum = parseInt(sa[i]) + parseInt(sb[i]) + carry;
+            if (sum >= 10) { carry = 1; count++; } else carry = 0;
+        }
+        return count;
+    }
+
+    // đếm số lần "mượn" khi trừ a - b theo cột (yêu cầu a >= b)
+    function countBorrows(a, b) {
+        let sa = a.toString(), sb = b.toString();
+        const len = Math.max(sa.length, sb.length);
+        sa = sa.padStart(len, '0'); sb = sb.padStart(len, '0');
+        let borrow = 0, count = 0;
+        for (let i = len - 1; i >= 0; i--) {
+            let da = parseInt(sa[i]) - borrow, db = parseInt(sb[i]);
+            if (da < db) { borrow = 1; count++; } else borrow = 0;
+        }
+        return count;
+    }
+
+    // ===== Mức 2 chữ số (mặc định) =====
+    function genAddEasy() {
+        // 2 chữ số + 1 chữ số, bắt buộc có nhớ (đơn vị cộng lại >= 10)
+        const unitsA = randInt(1, 9);
+        const tensA = randInt(1, 8);
+        const a = tensA * 10 + unitsA;
+        const minB = Math.max(1, 10 - unitsA);
+        const b = randInt(minB, 9);
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+
+    function genAddNormal() {
+        // 2 chữ số + 2 chữ số, có nhớ, và 1 trong 2 số tròn chục (có số 0)
+        const useRoundA = Math.random() < 0.5;
+        const tens1 = randInt(1, 8);
+        const round = tens1 * 10; // số tròn chục, ví dụ 40
+        const unitsB = randInt(1, 9);
+        const tens2 = randInt(1, Math.max(1, 8 - tens1));
+        const other = tens2 * 10 + unitsB;
+        const a = useRoundA ? round : other;
+        const b = useRoundA ? other : round;
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+
+    function genAddHard() {
+        // tìm ẩn số x: x + a = c  hoặc  a + x = c
+        const b = randInt(10, 80);
+        const x = randInt(1, 99 - b);
+        const c = b + x;
+        const display = Math.random() < 0.5 ? `x + ${b} = ${c}` : `${b} + x = ${c}`;
+        return { display, res: x };
+    }
+
+    function genSubEasy() {
+        // trừ có mượn cơ bản: chữ số hàng đơn vị của số bị trừ < số trừ
+        const unitsB = randInt(1, 9);
+        const unitsA = randInt(0, unitsB - 1);
+        const tensB = randInt(1, 8);
+        const tensA = randInt(tensB + 1, 9);
+        const a = tensA * 10 + unitsA;
+        const b = tensB * 10 + unitsB;
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+
+    function genSubNormal() {
+        // số bị trừ tròn chục (hàng đơn vị = 0) -> phải mượn liên hoàn
+        const tensA = randInt(2, 9);
+        const a = tensA * 10;
+        const unitsB = randInt(1, 9);
+        const tensB = randInt(1, tensA - 1);
+        const b = tensB * 10 + unitsB;
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+
+    function genSubHard() {
+        // 50%: trừ số lớn; 50%: tìm x (x + b = c)
+        if (Math.random() < 0.5) {
+            const a = randInt(50, 99);
+            const b = randInt(10, a - 1);
+            return { display: `${a} - ${b} = ?`, res: a - b };
+        }
+        const b = randInt(10, 80);
+        const x = randInt(1, 99 - b);
+        const c = b + x;
+        return { display: `x + ${b} = ${c}`, res: x };
+    }
+
+    // ===== Mức 3 chữ số: cộng/trừ 3 số với 2 số (hoặc 3 số), thường có nhớ =====
+    function genAdd3Easy() {
+        // 3 chữ số + 2 chữ số, có nhớ, không tràn lên 4 chữ số
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 990); b = randInt(10, 99);
+            if (a + b <= 999 && countCarries(a, b) >= 1) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+    function genAdd3Normal() {
+        // 3 chữ số + 3 chữ số, có nhớ, không tràn lên 4 chữ số
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 899); b = randInt(100, 999 - a);
+            if (countCarries(a, b) >= 1) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+    function genAdd3Hard() {
+        // 50%: tìm x (3 chữ số); 50%: 3 chữ số + 3 chữ số nhớ nhiều lần
+        if (Math.random() < 0.5) {
+            const b = randInt(100, 700);
+            const x = randInt(10, Math.max(10, 899 - b));
+            const c = b + x;
+            const display = Math.random() < 0.5 ? `x + ${b} = ${c}` : `${b} + x = ${c}`;
+            return { display, res: x };
+        }
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 899); b = randInt(100, 999 - a);
+            if (countCarries(a, b) >= 2) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+
+    function genSub3Easy() {
+        // 3 chữ số - 2 chữ số (hoặc 3 chữ số), mượn cơ bản 1 lần
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 999); b = randInt(10, a - 1);
+            if (countBorrows(a, b) >= 1) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+    function genSub3Normal() {
+        // 3 chữ số - 3 chữ số, mượn 1 lần
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 999); b = randInt(100, a - 1);
+            if (countBorrows(a, b) >= 1) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+    function genSub3Hard() {
+        // 50%: tìm x; 50%: 3 chữ số - 3 chữ số mượn liên hoàn 2 lần
+        if (Math.random() < 0.5) {
+            const b = randInt(100, 700);
+            const x = randInt(10, Math.max(10, 899 - b));
+            const c = b + x;
+            return { display: `x + ${b} = ${c}`, res: x };
+        }
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(200, 999); b = randInt(100, a - 1);
+            if (countBorrows(a, b) >= 2) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+
+    // ===== Mức 4 chữ số: cộng/trừ với 2-3 chữ số, có thể tràn lên 4 chữ số
+    // hoặc từ 4 chữ số mượn tụt xuống còn 3 chữ số =====
+    function genAdd4Easy() {
+        // 3 chữ số + 3 chữ số, tổng tràn lên 4 chữ số
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(500, 999); b = randInt(500, 999);
+            if (a + b >= 1000 && a + b <= 1999) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+    function genAdd4Normal() {
+        // 4 chữ số + 3 chữ số, có nhớ
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(1000, 8999); b = randInt(100, 999);
+            if (a + b <= 9999 && countCarries(a, b) >= 1) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+    function genAdd4Hard() {
+        // 40%: tìm x (4 chữ số); còn lại: 4 chữ số + 4 chữ số nhớ nhiều lần
+        if (Math.random() < 0.4) {
+            const b = randInt(1000, 8000);
+            const x = randInt(100, Math.max(100, 9999 - b));
+            const c = b + x;
+            const display = Math.random() < 0.5 ? `x + ${b} = ${c}` : `${b} + x = ${c}`;
+            return { display, res: x };
+        }
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(1000, 8999); b = randInt(1000, 9999 - a);
+            if (countCarries(a, b) >= 2) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+
+    function genSub4Easy() {
+        // 4 chữ số - 3 chữ số, kết quả tụt xuống còn 3 chữ số (mượn liên hoàn)
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(1000, 1200); b = randInt(100, 999);
+            if (a - b >= 1 && countBorrows(a, b) >= 1) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+    function genSub4Normal() {
+        // 4 chữ số - 3 chữ số (hoặc 4 chữ số), mượn ít nhất 1 lần
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(1000, 9999); b = randInt(100, a - 1);
+            if (countBorrows(a, b) >= 1) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+    function genSub4Hard() {
+        // 40%: tìm x; còn lại: 4 chữ số - 4 chữ số mượn liên hoàn nhiều lần
+        if (Math.random() < 0.4) {
+            const b = randInt(1000, 8000);
+            const x = randInt(100, Math.max(100, 9999 - b));
+            const c = b + x;
+            return { display: `x + ${b} = ${c}`, res: x };
+        }
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(2000, 9999); b = randInt(1000, a - 1);
+            if (countBorrows(a, b) >= 2) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+
+    function generateWordQuestion(operator, difficulty, digitLevel) {
+        if (digitLevel === 3) {
+            if (operator === 'add') {
+                if (difficulty === 'de') return genAdd3Easy();
+                if (difficulty === 'thuong') return genAdd3Normal();
+                return genAdd3Hard();
+            }
+            if (difficulty === 'de') return genSub3Easy();
+            if (difficulty === 'thuong') return genSub3Normal();
+            return genSub3Hard();
+        }
+        if (digitLevel === 4) {
+            if (operator === 'add') {
+                if (difficulty === 'de') return genAdd4Easy();
+                if (difficulty === 'thuong') return genAdd4Normal();
+                return genAdd4Hard();
+            }
+            if (difficulty === 'de') return genSub4Easy();
+            if (difficulty === 'thuong') return genSub4Normal();
+            return genSub4Hard();
+        }
+        // digitLevel === 2 (mặc định)
+        if (operator === 'add') {
+            if (difficulty === 'de') return genAddEasy();
+            if (difficulty === 'thuong') return genAddNormal();
+            return genAddHard();
+        }
+        if (difficulty === 'de') return genSubEasy();
+        if (difficulty === 'thuong') return genSubNormal();
+        return genSubHard();
+    }
+
+    function generateWordSessionPlan(n, operator, difficulty, digitLevel) {
+        const queue = [];
+        let guard = 0;
+        while (queue.length < n && guard < n * 25) {
+            guard++;
+            const q = generateWordQuestion(operator, difficulty, digitLevel);
+            // tránh lặp lại y hệt câu ngay trước đó
+            if (queue.length && queue[queue.length - 1].display === q.display) continue;
+            queue.push(q);
+        }
+        while (queue.length < n) queue.push(generateWordQuestion(operator, difficulty, digitLevel));
+        return queue;
+    }
+    // -------------------------------------------------------------------------
+
     function updateProgressLabel() {
         document.getElementById('current-q').innerText = position;
         document.getElementById('max-q').innerText = sessionPlan.length;
     }
 
     function startGame() {
-        selectedTables = Array.from(document.querySelectorAll('.selected')).map(el => parseInt(el.innerText));
         const total = parseInt(document.getElementById('total-questions').value);
-        if (selectedTables.length === 0 || !total) return alert("Điền đủ thông tin nhé!");
-        sessionPlan = generateSessionPlan(total, selectedTables);
+        if (!total || total <= 0) return alert("Điền số câu hỏi nhé!");
+
+        if (currentOperator === 'add' || currentOperator === 'sub') {
+            sessionPlan = generateWordSessionPlan(total, currentOperator, currentDifficulty, currentDigitLevel);
+        } else {
+            selectedTables = Array.from(document.querySelectorAll('#start-screen .selected')).map(el => parseInt(el.innerText));
+            if (selectedTables.length === 0) return alert("Chọn ít nhất 1 bảng nhé!");
+            sessionPlan = generateSessionPlan(total, selectedTables, currentOperator);
+        }
+
         position = 0;
         scoreRight = 0;
         scoreWrong = 0;
         sessionQuestionTimes = [];
         document.getElementById('score-right').innerText = 0;
         document.getElementById('score-wrong').innerText = 0;
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('game-screen').classList.remove('hidden');
+        showScreen('game-screen');
         nextQuestion();
     }
 
@@ -670,7 +1267,7 @@
         currentQuestionPos = position;
         position++;
         currentCorrect = currentQuestion.res;
-        document.getElementById('question').innerText = `${currentQuestion.t} x ${currentQuestion.m} = ?`;
+        document.getElementById('question').innerText = currentQuestion.display;
         document.getElementById('answer').value = '';
         document.getElementById('timer').classList.remove('critical');
         updateProgressLabel();
@@ -685,14 +1282,19 @@
             ? (sessionQuestionTimes.reduce((a, b) => a + b, 0) / sessionQuestionTimes.length)
             : 0;
 
-        document.getElementById('game-screen').classList.add('hidden');
-        document.getElementById('result-screen').classList.remove('hidden');
+        showScreen('result-screen');
         document.getElementById('final-score-num').innerText = `${score10.toFixed(1)}/10`;
         document.getElementById('final-score-detail').innerText =
             `Đúng: ${scoreRight} • Sai: ${scoreWrong} • TB ${avgTime.toFixed(1)}s/câu`;
 
+        let opLabel = OPS[currentOperator].label;
+        if (currentOperator === 'add' || currentOperator === 'sub') {
+            opLabel += ` (${currentDigitLevel} chữ số, ${DIFF_LABELS[currentDifficulty]})`;
+        }
+
         saveHistoryEntry({
             date: formatNow(),
+            opLabel,
             totalAnswered: sessionPlan.length,
             correct: scoreRight,
             wrong: scoreWrong,
@@ -743,7 +1345,7 @@
         list.innerHTML = hist.map(h => `
             <div class="history-item">
                 <div class="history-top">
-                    <span class="history-date">${h.date}</span>
+                    <span class="history-date">${h.date}${h.opLabel ? ' • ' + h.opLabel : ''}</span>
                     <span class="history-score">${h.score}/10</span>
                 </div>
                 <div class="history-detail">Số câu: ${h.totalAnswered} • Đúng: ${h.correct} • Sai: ${h.wrong} • TB: ${h.avgTime}s/câu</div>
