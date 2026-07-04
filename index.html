@@ -896,7 +896,7 @@
             <span id="balance-display">Số dư: 0 VNĐ</span>
             <button class="balance-custom-btn" onclick="openBalanceModal()">⚙ Tuỳ chỉnh</button>
         </div>
-        <h2>Học toán đi em zaii😨❤</h2>
+        <h2>Học toán đi em zai😨💗</h2>
         <div class="menu-grid">
             <button class="op-category-box" onclick="showScreen('submenu-pm')">
                 <span>+</span><span class="cat-divider">−</span>
@@ -989,7 +989,7 @@
         <h2>Kết quả</h2>
         <h1 id="final-score-num"></h1>
         <p id="final-score-detail"></p>
-        <button onclick="location.reload()">Làm lại</button>
+        <button onclick="restartApp()">Làm lại</button>
     </div>
 
 <script>
@@ -997,7 +997,7 @@
     let sessionPlan = [], position = 0, currentQuestion = null, currentQuestionPos = -1;
     let currentCorrect, timerInterval, timeLeft;
     let audio = document.getElementById("bg-music"), isMusicPlaying = false;
-    let musicTracks = ['nhac2.mp3', 'nhac.mp3'];
+    let musicTracks = ['nhac2.mp3', 'nhac.mp3', 'nhac3.mp3', 'nhac4.mp3'];
     let currentTrackIndex = 0;
     let questionStartTime = 0, sessionQuestionTimes = [];
     const HISTORY_KEY = 'mtc_history_v1';
@@ -1617,6 +1617,23 @@
         document.getElementById('balance-adjust-input').value = '';
     }
     // -------------------------------------------------------------------------
+
+    // ---- bấm "Làm lại": chỉ reset điểm/tiến trình chơi và quay về màn hình
+    // chính, KHÔNG reload cả trang để nhạc đang phát không bị dừng/reset ----
+    function restartApp() {
+        clearInterval(timerInterval);
+        sessionPlan = [];
+        position = 0;
+        scoreRight = 0;
+        scoreWrong = 0;
+        sessionQuestionTimes = [];
+        currentQuestion = null;
+        document.getElementById('score-right').innerText = 0;
+        document.getElementById('score-wrong').innerText = 0;
+        renderHistory();
+        updateBalanceDisplay();
+        showScreen('main-menu');
+    }
 
     function addDigit(n) { document.getElementById('answer').value += n; }
     function clearInput() {
