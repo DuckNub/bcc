@@ -718,6 +718,19 @@
             font-size: 13px;
             color: rgba(234,252,255,0.65);
         }
+        .history-money {
+            margin-top: 2px;
+            font-size: 13px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .history-money.positive {
+            color: var(--green);
+            text-shadow: 0 0 6px rgba(57,255,20,0.6);
+        }
+        .history-money.negative {
+            color: var(--red);
+            text-shadow: 0 0 6px rgba(255,41,101,0.6);
+        }
         .history-empty {
             font-size: 13px;
             color: rgba(234,252,255,0.5);
@@ -971,6 +984,7 @@
         <h2 id="setup-title">Chọn bảng</h2>
         <div class="checkbox-group">
             <script>for(let i=1; i<=10; i++) document.write(`<button onclick="this.classList.toggle('selected')">${i}</button>`);</script>
+            <button onclick="selectFullTables()" style="grid-column: span 2; background: linear-gradient(135deg, var(--green), #00c2a8); color:#04150a; border:none;">Full (2-9)</button>
         </div>
         <input type="number" id="total-questions" placeholder="Số câu hỏi">
         <input type="number" id="time-limit" placeholder="Giây mỗi câu">
@@ -1053,6 +1067,17 @@
             .forEach(el => el.classList.remove('selected'));
         setupBackTarget = OPS[op].group;
         showScreen('start-screen');
+    }
+
+    // ---- chọn nhanh bảng 2-9 (nút "Full") ----
+    function selectFullTables() {
+        const fullSet = [2,3,4,5,6,7,8,9];
+        document.querySelectorAll('#start-screen .checkbox-group button').forEach(el => {
+            const n = parseInt(el.innerText);
+            if (!isNaN(n)) {
+                el.classList.toggle('selected', fullSet.includes(n));
+            }
+        });
     }
 
     // ---- cộng/trừ: mở màn hình chọn độ khó thay vì chọn bảng ----
@@ -1443,7 +1468,7 @@
         if (currentOperator === 'add' || currentOperator === 'sub') {
             sessionPlan = generateWordSessionPlan(total, currentOperator, currentDifficulty, currentDigitLevel);
         } else {
-            selectedTables = Array.from(document.querySelectorAll('#start-screen .selected')).map(el => parseInt(el.innerText));
+            selectedTables = Array.from(document.querySelectorAll('#start-screen .selected')).map(el => parseInt(el.innerText)).filter(n => !isNaN(n));
             if (selectedTables.length === 0) return alert("Chọn ít nhất 1 bảng nhé!");
             sessionPlan = generateSessionPlan(total, selectedTables, currentOperator);
         }
@@ -1495,6 +1520,7 @@
         const avgTime = sessionQuestionTimes.length > 0
             ? (sessionQuestionTimes.reduce((a, b) => a + b, 0) / sessionQuestionTimes.length)
             : 0;
+        const moneyEarned = scoreRight * 10 - scoreWrong * 10;
 
         showScreen('result-screen');
         document.getElementById('final-score-num').innerText = `${score10.toFixed(1)}/10`;
@@ -1504,6 +1530,10 @@
         let opLabel = OPS[currentOperator].label;
         if (currentOperator === 'add' || currentOperator === 'sub') {
             opLabel += ` (${currentDigitLevel} chữ số, ${DIFF_LABELS[currentDifficulty]})`;
+        } else {
+            // nhân/chia: ghi rõ đã học bảng nào, ví dụ "Phép nhân bảng 2 3 4 7"
+            const tablesSorted = [...selectedTables].sort((a, b) => a - b);
+            opLabel += ` bảng ${tablesSorted.join(' ')}`;
         }
 
         saveHistoryEntry({
@@ -1513,7 +1543,8 @@
             correct: scoreRight,
             wrong: scoreWrong,
             avgTime: avgTime.toFixed(1),
-            score: score10.toFixed(1)
+            score: score10.toFixed(1),
+            money: moneyEarned
         });
         renderHistory();
     }
@@ -1572,15 +1603,21 @@
             list.innerHTML = '<p class="history-empty">Chưa có lịch sử làm bài.</p>';
             return;
         }
-        list.innerHTML = hist.map(h => `
+        list.innerHTML = hist.map(h => {
+            const money = typeof h.money === 'number' ? h.money : 0;
+            const moneyClass = money >= 0 ? 'positive' : 'negative';
+            const moneySign = money > 0 ? '+' : '';
+            return `
             <div class="history-item">
                 <div class="history-top">
                     <span class="history-date">${h.date}${h.opLabel ? ' • ' + h.opLabel : ''}</span>
                     <span class="history-score">${h.score}/10</span>
                 </div>
                 <div class="history-detail">Số câu: ${h.totalAnswered} • Đúng: ${h.correct} • Sai: ${h.wrong} • TB: ${h.avgTime}s/câu</div>
+                <div class="history-money ${moneyClass}">${moneySign}${money.toLocaleString('vi-VN')} VNĐ</div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     }
     // -------------------------------------------------------------------------
 
