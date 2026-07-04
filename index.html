@@ -338,6 +338,38 @@
             width: 100%;
         }
 
+        /* ===== GIF minh hoạ (g1) dưới phần lịch sử ở màn hình chính ===== */
+        .menu-gif-section {
+            margin-top: 18px;
+            display: flex;
+            justify-content: center;
+        }
+        .menu-gif-section img {
+            width: 100%;
+            max-width: 380px;
+            aspect-ratio: 380 / 128;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        /* ===== GIF phản hồi đúng/sai (g2/g3) khi làm bài ===== */
+        #feedback-overlay .fx-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .fx-gif {
+            display: none;
+            width: 220px;
+            max-width: 65vw;
+            height: auto;
+        }
+        #fx-gif-correct { aspect-ratio: 220 / 310; }
+        #fx-gif-wrong { aspect-ratio: 220 / 305; }
+        #feedback-overlay.show-correct #fx-gif-correct { display: block; }
+        #feedback-overlay.show-wrong #fx-gif-wrong { display: block; }
+
         .back-btn {
             position: absolute;
             top: 18px;
@@ -811,10 +843,16 @@
         <button id="music-btn" onclick="toggleMusic()">🎵 Nhạc: Tắt</button>
     </div>
     <audio id="bg-music" loop>
-        <source src="nhac.mp3" type="audio/mpeg">
+        <source src="nhac2.mp3" type="audio/mpeg">
     </audio>
 
-    <div id="feedback-overlay"><span class="fx-text" id="fx-text"></span></div>
+    <div id="feedback-overlay">
+        <div class="fx-content">
+            <img id="fx-gif-correct" class="fx-gif" src="g2.gif" alt="" onerror="this.remove()">
+            <img id="fx-gif-wrong" class="fx-gif" src="g3.gif" alt="" onerror="this.remove()">
+            <span class="fx-text" id="fx-text"></span>
+        </div>
+    </div>
 
     <div id="balance-modal-overlay" class="hidden">
         <div class="balance-modal-card">
@@ -859,6 +897,10 @@
                 <button class="clear-history-btn" onclick="clearHistory()">Xoá hết</button>
             </div>
             <div id="history-list"></div>
+        </div>
+
+        <div class="menu-gif-section">
+            <img src="g1.gif" alt="" onerror="this.parentElement.remove()">
         </div>
     </div>
 
@@ -940,7 +982,7 @@
     let sessionPlan = [], position = 0, currentQuestion = null, currentQuestionPos = -1;
     let currentCorrect, timerInterval, timeLeft;
     let audio = document.getElementById("bg-music"), isMusicPlaying = false;
-    let musicTracks = ['nhac.mp3', 'nhac2.mp3'];
+    let musicTracks = ['nhac2.mp3', 'nhac.mp3'];
     let currentTrackIndex = 0;
     let questionStartTime = 0, sessionQuestionTimes = [];
     const HISTORY_KEY = 'mtc_history_v1';
