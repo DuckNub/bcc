@@ -891,6 +891,17 @@
         </div>
     </div>
 
+    <div id="clear-history-modal-overlay" class="hidden">
+        <div class="balance-modal-card">
+            <button class="back-btn" onclick="closeClearHistoryModal()">⬅</button>
+            <div class="balance-modal-faces">🗑️</div>
+            <p class="balance-modal-label">Nhập mật khẩu để xoá lịch sử</p>
+            <input type="password" id="clear-history-password-input" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter') submitClearHistoryPassword()">
+            <button onclick="submitClearHistoryPassword()" style="width:100%;">Xoá</button>
+            <p id="clear-history-password-error" class="balance-modal-error hidden">Sai mật khẩu, thử lại nhé!</p>
+        </div>
+    </div>
+
     <div class="container" id="main-menu">
         <div class="balance-bar">
             <span id="balance-display">Số dư: 0 VNĐ</span>
@@ -909,7 +920,7 @@
         <div class="history-section">
             <div class="history-header">
                 <h3>📜 LỊCH SỬ LÀM BÀI</h3>
-                <button class="clear-history-btn" onclick="clearHistory()">Xoá hết</button>
+                <button class="clear-history-btn" onclick="openClearHistoryModal()">Xoá hết</button>
             </div>
             <div id="history-list"></div>
         </div>
@@ -1532,9 +1543,25 @@
         } catch (e) { /* localStorage không khả dụng, bỏ qua */ }
     }
 
-    function clearHistory() {
-        try { localStorage.removeItem(HISTORY_KEY); } catch (e) {}
-        renderHistory();
+    function openClearHistoryModal() {
+        document.getElementById('clear-history-modal-overlay').classList.remove('hidden');
+        document.getElementById('clear-history-password-input').value = '';
+        document.getElementById('clear-history-password-error').classList.add('hidden');
+    }
+
+    function closeClearHistoryModal() {
+        document.getElementById('clear-history-modal-overlay').classList.add('hidden');
+    }
+
+    function submitClearHistoryPassword() {
+        const val = document.getElementById('clear-history-password-input').value;
+        if (val === BALANCE_PASSWORD) {
+            try { localStorage.removeItem(HISTORY_KEY); } catch (e) {}
+            renderHistory();
+            closeClearHistoryModal();
+        } else {
+            document.getElementById('clear-history-password-error').classList.remove('hidden');
+        }
     }
 
     function renderHistory() {
