@@ -436,7 +436,7 @@
             align-items: center;
             justify-content: center;
         }
-        #submenu-pm, #submenu-td, #difficulty-screen, #start-screen {
+        #submenu-pm, #submenu-td, #difficulty-screen, #start-screen, #leaderboard-screen {
             position: relative;
             padding-top: 60px;
         }
@@ -776,6 +776,51 @@
             margin: 6px 0;
         }
 
+        /* ===== Bảng xếp hạng (leaderboard) ===== */
+        #leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .lb-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,246,255,0.25);
+            background: rgba(255,255,255,0.03);
+        }
+        .lb-item.lb-me {
+            border-color: var(--magenta);
+            box-shadow: 0 0 10px rgba(255,46,230,0.4);
+            background: rgba(255,46,230,0.08);
+        }
+        .lb-rank {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            width: 34px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .lb-name {
+            flex: 1;
+            text-align: left;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .lb-balance {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .lb-balance.positive { color: var(--green); text-shadow: 0 0 6px rgba(57,255,20,0.6); }
+        .lb-balance.negative { color: var(--red); text-shadow: 0 0 6px rgba(255,41,101,0.6); }
+
         /* floating particles for correct answers */
         .spark {
             position: fixed;
@@ -869,7 +914,7 @@
                 height: 38px;
                 font-size: 18px;
             }
-            #submenu-pm, #submenu-td, #start-screen {
+            #submenu-pm, #submenu-td, #start-screen, #leaderboard-screen {
                 padding-top: 52px;
             }
         }
@@ -982,6 +1027,8 @@
             </button>
         </div>
 
+        <button onclick="openLeaderboard()" style="width:100%; margin-top:14px; background: linear-gradient(135deg, var(--yellow), var(--red)); color:#1a0900; border:none;">🏆 Bảng Xếp Hạng Top 10</button>
+
         <div class="history-section">
             <div class="history-header">
                 <h3>📜 LỊCH SỬ LÀM BÀI</h3>
@@ -993,6 +1040,12 @@
         <div class="menu-gif-section">
             <img src="g1.gif" alt="" onerror="this.parentElement.remove()">
         </div>
+    </div>
+
+    <div class="container hidden" id="leaderboard-screen">
+        <button class="back-btn" onclick="showScreen('main-menu')">⬅</button>
+        <h2>🏆 Top 10 Số Dư</h2>
+        <div id="leaderboard-list"></div>
     </div>
 
     <div class="container hidden" id="submenu-pm">
@@ -1162,6 +1215,7 @@
         try {
             const cred = await authMod.createUserWithEmailAndPassword(fbAuth, usernameToEmail(uname), pass);
             await fsMod.setDoc(fsMod.doc(fbDb, 'users', cred.user.uid), { username: uname, balance: 0, history: [] });
+            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', cred.user.uid), { username: uname, balance: 0 });
         } catch (e) {
             showAuthError(mapAuthError(e));
         }
@@ -1195,6 +1249,7 @@
         } else {
             data = { username: document.getElementById('auth-username').value.trim() || 'Bạn', balance: 0, history: [] };
             await fsMod.setDoc(ref, data);
+            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', uid), { username: data.username, balance: 0 });
         }
         currentUsername = data.username || '';
         cachedBalance = typeof data.balance === 'number' ? data.balance : 0;
@@ -1841,7 +1896,50 @@
         if (!currentUserId) return;
         try {
             await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { balance: v });
+            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', currentUserId), { username: currentUsername, balance: v }, { merge: true });
         } catch (e) { console.error('Lỗi lưu số dư:', e); }
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    async function openLeaderboard() {
+        showScreen('leaderboard-screen');
+        const list = document.getElementById('leaderboard-list');
+        list.innerHTML = '<p class="history-empty">Đang tải...</p>';
+        try {
+            const q = fsMod.query(
+                fsMod.collection(fbDb, 'leaderboard'),
+                fsMod.orderBy('balance', 'desc'),
+                fsMod.limit(10)
+            );
+            const snap = await fsMod.getDocs(q);
+            if (snap.empty) {
+                list.innerHTML = '<p class="history-empty">Chưa có ai trên bảng xếp hạng.</p>';
+                return;
+            }
+            const medals = ['🥇', '🥈', '🥉'];
+            let rank = 0;
+            list.innerHTML = snap.docs.map(docSnap => {
+                rank++;
+                const data = docSnap.data();
+                const isMe = docSnap.id === currentUserId;
+                const badge = medals[rank - 1] || `#${rank}`;
+                const bal = typeof data.balance === 'number' ? data.balance : 0;
+                const balClass = bal >= 0 ? 'positive' : 'negative';
+                const name = escapeHtml(data.username || '???') + (isMe ? ' (bạn)' : '');
+                return `
+                <div class="lb-item ${isMe ? 'lb-me' : ''}">
+                    <span class="lb-rank">${badge}</span>
+                    <span class="lb-name">${name}</span>
+                    <span class="lb-balance ${balClass}">${bal.toLocaleString('vi-VN')} VNĐ</span>
+                </div>`;
+            }).join('');
+        } catch (e) {
+            console.error('Lỗi tải bảng xếp hạng:', e);
+            list.innerHTML = '<p class="history-empty">Lỗi tải bảng xếp hạng, thử lại nhé.</p>';
+        }
     }
 
     async function addToBalance(delta) {
