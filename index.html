@@ -254,6 +254,44 @@
             box-shadow: 0 0 8px var(--magenta), 0 0 22px rgba(255,46,230,0.6);
         }
 
+        /* ===== Mode select (Ôn / Kiểm Tra / Extra) trên start-screen ===== */
+        .mode-select-section {
+            margin-top: 20px;
+        }
+        .mode-select-grid {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .mode-box {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0,246,255,0.4);
+            color: var(--text);
+        }
+        .mode-on:hover { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,246,255,0.5); }
+        .mode-kt:hover { border-color: var(--yellow); box-shadow: 0 0 10px rgba(255,230,0,0.5); }
+        .mode-extra:hover { border-color: var(--purple); box-shadow: 0 0 10px rgba(139,46,255,0.6); }
+        .mode-box.selected {
+            background: linear-gradient(135deg, var(--magenta), var(--purple));
+            color: #fff;
+            border-color: var(--magenta);
+            box-shadow: 0 0 8px var(--magenta), 0 0 22px rgba(255,46,230,0.6);
+        }
+        .mode-hint {
+            font-size: 11px;
+            color: rgba(234,252,255,0.6);
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
         /* ===== Thanh số dư + nút tuỳ chỉnh ở màn hình chính ===== */
         .balance-bar {
             display: flex;
@@ -915,10 +953,24 @@
         </div>
     </div>
 
-    <div class="container" id="main-menu">
+    <div class="container" id="auth-screen">
+        <h2>Đăng nhập</h2>
+        <p id="auth-status" style="font-size:13px;opacity:0.7;margin-top:-6px;">Đang kết nối...</p>
+        <input type="text" id="auth-username" placeholder="Tên đăng nhập" autocomplete="username">
+        <input type="password" id="auth-password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+        <p id="auth-error" class="balance-modal-error hidden"></p>
+        <button onclick="doLogin()" style="width:100%;" id="auth-login-btn" disabled>Đăng nhập</button>
+        <button onclick="doSignup()" style="width:100%; margin-top:8px;" id="auth-signup-btn" disabled>Đăng ký tài khoản mới</button>
+    </div>
+
+    <div class="container hidden" id="main-menu">
         <div class="balance-bar">
             <span id="balance-display">Số dư: 0 VNĐ</span>
             <button class="balance-custom-btn" onclick="openBalanceModal()">⚙ Tuỳ chỉnh</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:12px;opacity:0.75;">👤 <span id="welcome-username"></span></span>
+            <button class="balance-custom-btn" onclick="doLogout()">Đăng xuất</button>
         </div>
         <h2>Học toán đi em zai😨💗</h2>
         <div class="menu-grid">
@@ -988,6 +1040,17 @@
         </div>
         <input type="number" id="total-questions" placeholder="Số câu hỏi">
         <input type="number" id="time-limit" placeholder="Giây mỗi câu">
+
+        <div class="mode-select-section">
+            <div class="digit-level-label">CHẾ ĐỘ</div>
+            <div class="mode-select-grid">
+                <button class="mode-box mode-on" data-mode="on" onclick="selectMode('on')">Ôn</button>
+                <button class="mode-box mode-kt selected" data-mode="kiemtra" onclick="selectMode('kiemtra')">Kiểm Tra</button>
+                <button class="mode-box mode-extra" data-mode="extra" onclick="selectMode('extra')">Extra</button>
+            </div>
+            <p class="mode-hint">Ôn: không cộng/trừ tiền · Kiểm Tra: đúng +10 / sai -10 · Extra: đúng +10 / sai -20, đúng &gt;90% tổng tiền x1.5</p>
+        </div>
+
         <button onclick="startGame()" style="width: 100%;">Bắt đầu học</button>
     </div>
 
@@ -1025,10 +1088,122 @@
     let musicTracks = ['nhac2.mp3', 'nhac.mp3', 'nhac3.mp3', 'nhac4.mp3'];
     let currentTrackIndex = 0;
     let questionStartTime = 0, sessionQuestionTimes = [];
-    const HISTORY_KEY = 'mtc_history_v1';
-    const HISTORY_MAX = 10;
-    const BALANCE_KEY = 'mtc_balance_v1';
     const BALANCE_PASSWORD = 'duc123';
+
+    // ================= FIREBASE (tài khoản riêng cho từng người) =================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCwSxZ-YiuVKIuRzmHYC_uy4quR4ssvEBM",
+        authDomain: "bccforben.firebaseapp.com",
+        projectId: "bccforben",
+        storageBucket: "bccforben.firebasestorage.app",
+        messagingSenderId: "810378202904",
+        appId: "1:810378202904:web:f948060af9e3fdf857986d"
+    };
+    const FIREBASE_SDK_VERSION = "10.13.0";
+    let fbAuth, fbDb, authMod, fsMod;
+    let currentUserId = null, currentUsername = '';
+    let cachedBalance = 0, cachedHistory = [];
+
+    // tên đăng nhập không cần là email thật -> ghép thành 1 "email" nội bộ
+    // để Firebase Auth (vốn chỉ hỗ trợ email/password) chấp nhận được
+    function usernameToEmail(username) {
+        const clean = username.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '');
+        return `${clean}@mtcapp.local`;
+    }
+
+    function mapAuthError(e) {
+        const code = e && e.code ? e.code : '';
+        if (code.includes('email-already-in-use')) return 'Tên đăng nhập này đã có người dùng rồi!';
+        if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) return 'Sai tên đăng nhập hoặc mật khẩu!';
+        if (code.includes('weak-password')) return 'Mật khẩu cần ít nhất 6 ký tự!';
+        if (code.includes('invalid-email')) return 'Tên đăng nhập không hợp lệ (chỉ dùng chữ, số)!';
+        if (code.includes('network-request-failed')) return 'Lỗi mạng, thử lại nhé!';
+        return 'Có lỗi xảy ra, thử lại nhé!';
+    }
+
+    function showAuthError(msg) {
+        const el = document.getElementById('auth-error');
+        el.innerText = msg;
+        el.classList.remove('hidden');
+    }
+    function clearAuthError() {
+        document.getElementById('auth-error').classList.add('hidden');
+    }
+
+    async function initFirebase() {
+        const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app.js`);
+        authMod = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-auth.js`);
+        fsMod = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-firestore.js`);
+        const app = initializeApp(firebaseConfig);
+        fbAuth = authMod.getAuth(app);
+        fbDb = fsMod.getFirestore(app);
+
+        document.getElementById('auth-status').classList.add('hidden');
+        document.getElementById('auth-login-btn').disabled = false;
+        document.getElementById('auth-signup-btn').disabled = false;
+
+        authMod.onAuthStateChanged(fbAuth, async (user) => {
+            if (user) {
+                await loadUserData(user.uid);
+                showScreen('main-menu');
+            } else {
+                currentUserId = null;
+                showScreen('auth-screen');
+            }
+        });
+    }
+
+    async function doSignup() {
+        clearAuthError();
+        const uname = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value;
+        if (!uname || !pass) return showAuthError('Nhập đủ tên đăng nhập và mật khẩu nhé!');
+        if (pass.length < 6) return showAuthError('Mật khẩu cần ít nhất 6 ký tự!');
+        try {
+            const cred = await authMod.createUserWithEmailAndPassword(fbAuth, usernameToEmail(uname), pass);
+            await fsMod.setDoc(fsMod.doc(fbDb, 'users', cred.user.uid), { username: uname, balance: 0, history: [] });
+        } catch (e) {
+            showAuthError(mapAuthError(e));
+        }
+    }
+
+    async function doLogin() {
+        clearAuthError();
+        const uname = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value;
+        if (!uname || !pass) return showAuthError('Nhập đủ tên đăng nhập và mật khẩu nhé!');
+        try {
+            await authMod.signInWithEmailAndPassword(fbAuth, usernameToEmail(uname), pass);
+        } catch (e) {
+            showAuthError(mapAuthError(e));
+        }
+    }
+
+    function doLogout() {
+        authMod.signOut(fbAuth);
+        document.getElementById('auth-username').value = '';
+        document.getElementById('auth-password').value = '';
+    }
+
+    async function loadUserData(uid) {
+        currentUserId = uid;
+        const ref = fsMod.doc(fbDb, 'users', uid);
+        const snap = await fsMod.getDoc(ref);
+        let data;
+        if (snap.exists()) {
+            data = snap.data();
+        } else {
+            data = { username: document.getElementById('auth-username').value.trim() || 'Bạn', balance: 0, history: [] };
+            await fsMod.setDoc(ref, data);
+        }
+        currentUsername = data.username || '';
+        cachedBalance = typeof data.balance === 'number' ? data.balance : 0;
+        cachedHistory = Array.isArray(data.history) ? data.history : [];
+        document.getElementById('welcome-username').innerText = currentUsername;
+        updateBalanceDisplay();
+        renderHistory();
+    }
+    // ================================================================================
 
     // ---- các phép tính hỗ trợ: symbol hiển thị, tên gọi, và submenu cha
     // (dùng để nút back trên màn hình chọn bảng biết quay về đâu) ----
@@ -1043,6 +1218,18 @@
     let currentDigitLevel = 2; // dùng cho Cộng/Trừ: 2, 3 hoặc 4 chữ số
     let setupBackTarget = 'main-menu';
     const DIFF_LABELS = { de: 'Dễ', thuong: 'Thường', kho: 'Khó' };
+
+    // ---- chế độ làm bài: Ôn (không tính tiền) / Kiểm Tra (như cũ) / Extra
+    // (đúng +10, sai -20, đúng >90% thì nhân tổng tiền của phiên lên x1.5) ----
+    let currentMode = 'kiemtra';
+    const MODE_LABELS = { on: 'Ôn', kiemtra: 'Kiểm Tra', extra: 'Extra' };
+
+    function selectMode(m) {
+        currentMode = m;
+        document.querySelectorAll('#start-screen .mode-box').forEach(b => {
+            b.classList.toggle('selected', b.dataset.mode === m);
+        });
+    }
 
     // ---- điều hướng màn hình: ẩn tất cả .container, hiện đúng 1 cái ----
     function showScreen(id) {
@@ -1520,7 +1707,28 @@
         const avgTime = sessionQuestionTimes.length > 0
             ? (sessionQuestionTimes.reduce((a, b) => a + b, 0) / sessionQuestionTimes.length)
             : 0;
-        const moneyEarned = scoreRight * 10 - scoreWrong * 10;
+
+        // ---- tính tiền theo chế độ ----
+        // Kiểm Tra: tiền đã được cộng/trừ trực tiếp theo từng câu lúc làm bài,
+        // ở đây chỉ tính lại để ghi vào lịch sử.
+        // Extra: không cộng/trừ theo từng câu, tính gộp ở cuối bài rồi cộng 1 lần
+        // (để có thể áp dụng thưởng x1.5 khi đúng >90%).
+        // Ôn: không tính tiền.
+        let moneyEarned = 0;
+        let bonusApplied = false;
+        if (currentMode === 'kiemtra') {
+            moneyEarned = scoreRight * 10 - scoreWrong * 10;
+        } else if (currentMode === 'extra') {
+            let base = scoreRight * 10 - scoreWrong * 20;
+            const accuracy = totalAttempts > 0 ? scoreRight / totalAttempts : 0;
+            if (accuracy > 0.9) {
+                base = Math.round(base * 1.5);
+                bonusApplied = true;
+            }
+            moneyEarned = base;
+            addToBalance(moneyEarned);
+        }
+        // currentMode === 'on' -> moneyEarned giữ nguyên 0, không đụng tới số dư
 
         showScreen('result-screen');
         document.getElementById('final-score-num').innerText = `${score10.toFixed(1)}/10`;
@@ -1535,6 +1743,8 @@
             const tablesSorted = [...selectedTables].sort((a, b) => a - b);
             opLabel += ` bảng ${tablesSorted.join(' ')}`;
         }
+        opLabel += ` • ${MODE_LABELS[currentMode]}`;
+        if (bonusApplied) opLabel += ' 🎁x1.5';
 
         saveHistoryEntry({
             date: formatNow(),
@@ -1549,8 +1759,8 @@
         renderHistory();
     }
 
-    // ---- lịch sử làm bài: lưu theo từng thiết bị (localStorage), tối đa 10
-    // lần gần nhất, lần mới nhất lên đầu, quá 10 thì tự xoá cái cũ nhất ----
+    // ---- lịch sử làm bài: lưu trên Firestore theo từng tài khoản, KHÔNG giới
+    // hạn số lượng, lần mới nhất lên đầu, chỉ xoá khi bấm nút "Xoá hết" ----
     function formatNow() {
         const d = new Date();
         const pad = n => n.toString().padStart(2, '0');
@@ -1558,20 +1768,15 @@
     }
 
     function loadHistory() {
-        try {
-            return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
-        } catch (e) {
-            return [];
-        }
+        return cachedHistory;
     }
 
-    function saveHistoryEntry(entry) {
-        let hist = loadHistory();
-        hist.unshift(entry);
-        if (hist.length > HISTORY_MAX) hist = hist.slice(0, HISTORY_MAX);
+    async function saveHistoryEntry(entry) {
+        cachedHistory = [entry, ...cachedHistory];
+        if (!currentUserId) return;
         try {
-            localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
-        } catch (e) { /* localStorage không khả dụng, bỏ qua */ }
+            await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { history: cachedHistory });
+        } catch (e) { console.error('Lỗi lưu lịch sử:', e); }
     }
 
     function openClearHistoryModal() {
@@ -1584,10 +1789,13 @@
         document.getElementById('clear-history-modal-overlay').classList.add('hidden');
     }
 
-    function submitClearHistoryPassword() {
+    async function submitClearHistoryPassword() {
         const val = document.getElementById('clear-history-password-input').value;
         if (val === BALANCE_PASSWORD) {
-            try { localStorage.removeItem(HISTORY_KEY); } catch (e) {}
+            cachedHistory = [];
+            if (currentUserId) {
+                try { await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { history: [] }); } catch (e) { console.error(e); }
+            }
             renderHistory();
             closeClearHistoryModal();
         } else {
@@ -1621,20 +1829,24 @@
     }
     // -------------------------------------------------------------------------
 
-    // ---- tài khoản làm bài: đúng 1 câu +10 VNĐ, sai 1 câu -10 VNĐ, có thể
-    // âm; lưu theo từng thiết bị (localStorage), giống lịch sử làm bài ----
+    // ---- tài khoản làm bài: Kiểm Tra đúng 1 câu +10 VNĐ, sai 1 câu -10 VNĐ,
+    // Extra đúng +10 sai -20 (cộng gộp 1 lần lúc kết thúc), Ôn không tính tiền;
+    // có thể âm; lưu trên Firestore theo từng tài khoản, giống lịch sử làm bài ----
     function loadBalance() {
-        const v = parseInt(localStorage.getItem(BALANCE_KEY));
-        return isNaN(v) ? 0 : v;
+        return cachedBalance;
     }
 
-    function saveBalance(v) {
-        try { localStorage.setItem(BALANCE_KEY, v); } catch (e) { /* bỏ qua nếu không lưu được */ }
+    async function saveBalance(v) {
+        cachedBalance = v;
+        if (!currentUserId) return;
+        try {
+            await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { balance: v });
+        } catch (e) { console.error('Lỗi lưu số dư:', e); }
     }
 
-    function addToBalance(delta) {
+    async function addToBalance(delta) {
         const newBal = loadBalance() + delta;
-        saveBalance(newBal);
+        await saveBalance(newBal);
         updateBalanceDisplay();
     }
 
@@ -1765,8 +1977,15 @@
         let elapsed = (Date.now() - questionStartTime) / 1000;
         sessionQuestionTimes.push(elapsed);
 
-        if (isCorrect) { scoreRight++; addToBalance(10); }
-        else { scoreWrong++; addToBalance(-10); scheduleRetry(currentQuestion); }
+        if (isCorrect) {
+            scoreRight++;
+            if (currentMode === 'kiemtra') addToBalance(10);
+            // 'extra': cộng gộp lúc kết thúc bài (finishSession); 'on': không tính tiền
+        } else {
+            scoreWrong++;
+            if (currentMode === 'kiemtra') addToBalance(-10);
+            scheduleRetry(currentQuestion, currentQuestionPos);
+        }
         document.getElementById('score-right').innerText = scoreRight;
         document.getElementById('score-wrong').innerText = scoreWrong;
 
@@ -1775,9 +1994,9 @@
         setTimeout(nextQuestion, 500);
     }
 
-    // hiển thị lịch sử và số dư đã lưu ngay khi mở trang
-    renderHistory();
-    updateBalanceDisplay();
+    // khởi động Firebase ngay khi mở trang; onAuthStateChanged sẽ tự quyết định
+    // hiển thị màn hình đăng nhập hay màn hình chính (kèm số dư/lịch sử đúng người)
+    initFirebase();
 </script>
 </body>
 </html>
