@@ -980,6 +980,7 @@
             <div id="balance-modal-adjust-view" class="hidden">
                 <div class="balance-modal-faces">🙂 🙂</div>
                 <p class="balance-modal-current">Số dư hiện tại: <span id="balance-modal-current-num">0</span> VNĐ</p>
+                <p id="balance-adjust-hint" class="mode-hint" style="margin-top:-4px;"></p>
                 <input type="number" id="balance-adjust-input" placeholder="Nhập số (vd: 100 hoặc -100)" onkeydown="if(event.key==='Enter') submitBalanceAdjust()">
                 <button onclick="submitBalanceAdjust()" style="width:100%;">Vào</button>
                 <div class="balance-modal-dollar">$</div>
@@ -1044,7 +1045,7 @@
 
     <div class="container hidden" id="leaderboard-screen">
         <button class="back-btn" onclick="showScreen('main-menu')">⬅</button>
-        <h2>🏆 Top 10 Số Dư</h2>
+        <h2>🏆 Top 10 Tổng Thu</h2>
         <div id="leaderboard-list"></div>
     </div>
 
@@ -1141,7 +1142,13 @@
     let musicTracks = ['nhac2.mp3', 'nhac.mp3', 'nhac3.mp3', 'nhac4.mp3'];
     let currentTrackIndex = 0;
     let questionStartTime = 0, sessionQuestionTimes = [];
-    const BALANCE_PASSWORD = 'duc123';
+    const BALANCE_PASSWORD_SUB = 'duc123';   // mật khẩu chỉ được TRỪ tiền
+    const BALANCE_PASSWORD_FULL = 'ad0804';  // mật khẩu được CỘNG và TRỪ tiền
+    let balanceModalMode = 'sub'; // 'sub' = chỉ trừ, 'full' = cộng/trừ tự do
+
+    function isKnownBalancePassword(val) {
+        return val === BALANCE_PASSWORD_SUB || val === BALANCE_PASSWORD_FULL;
+    }
 
     // ================= FIREBASE (tài khoản riêng cho từng người) =================
     const firebaseConfig = {
@@ -1155,7 +1162,7 @@
     const FIREBASE_SDK_VERSION = "10.13.0";
     let fbAuth, fbDb, authMod, fsMod;
     let currentUserId = null, currentUsername = '';
-    let cachedBalance = 0, cachedHistory = [];
+    let cachedBalance = 0, cachedHistory = [], cachedTotalEarned = 0;
 
     // tên đăng nhập không cần là email thật -> ghép thành 1 "email" nội bộ
     // để Firebase Auth (vốn chỉ hỗ trợ email/password) chấp nhận được
@@ -1214,8 +1221,8 @@
         if (pass.length < 6) return showAuthError('Mật khẩu cần ít nhất 6 ký tự!');
         try {
             const cred = await authMod.createUserWithEmailAndPassword(fbAuth, usernameToEmail(uname), pass);
-            await fsMod.setDoc(fsMod.doc(fbDb, 'users', cred.user.uid), { username: uname, balance: 0, history: [] });
-            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', cred.user.uid), { username: uname, balance: 0 });
+            await fsMod.setDoc(fsMod.doc(fbDb, 'users', cred.user.uid), { username: uname, balance: 0, totalEarned: 0, history: [] });
+            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', cred.user.uid), { username: uname, balance: 0, totalEarned: 0 });
         } catch (e) {
             showAuthError(mapAuthError(e));
         }
@@ -1247,12 +1254,15 @@
         if (snap.exists()) {
             data = snap.data();
         } else {
-            data = { username: document.getElementById('auth-username').value.trim() || 'Bạn', balance: 0, history: [] };
+            data = { username: document.getElementById('auth-username').value.trim() || 'Bạn', balance: 0, totalEarned: 0, history: [] };
             await fsMod.setDoc(ref, data);
-            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', uid), { username: data.username, balance: 0 });
+            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', uid), { username: data.username, balance: 0, totalEarned: 0 });
         }
         currentUsername = data.username || '';
         cachedBalance = typeof data.balance === 'number' ? data.balance : 0;
+        // tổng thu tích luỹ từ lúc tạo tài khoản; nếu tài khoản cũ chưa có
+        // trường này thì khởi tạo bằng số dư hiện tại (không để bị âm)
+        cachedTotalEarned = typeof data.totalEarned === 'number' ? data.totalEarned : Math.max(0, cachedBalance);
         cachedHistory = Array.isArray(data.history) ? data.history : [];
         document.getElementById('welcome-username').innerText = currentUsername;
         updateBalanceDisplay();
@@ -1846,7 +1856,7 @@
 
     async function submitClearHistoryPassword() {
         const val = document.getElementById('clear-history-password-input').value;
-        if (val === BALANCE_PASSWORD) {
+        if (isKnownBalancePassword(val)) {
             cachedHistory = [];
             if (currentUserId) {
                 try { await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { history: [] }); } catch (e) { console.error(e); }
@@ -1886,17 +1896,24 @@
 
     // ---- tài khoản làm bài: Kiểm Tra đúng 1 câu +10 VNĐ, sai 1 câu -10 VNĐ,
     // Extra đúng +10 sai -20 (cộng gộp 1 lần lúc kết thúc), Ôn không tính tiền;
-    // có thể âm; lưu trên Firestore theo từng tài khoản, giống lịch sử làm bài ----
+    // có thể âm; lưu trên Firestore theo từng tài khoản, giống lịch sử làm bài.
+    //
+    // "Tổng thu" (cachedTotalEarned) là chỉ số riêng cho bảng xếp hạng: nó CHỈ
+    // tăng khi có tiền được cộng thêm (đúng câu hỏi, thưởng Extra, hoặc admin
+    // cộng tiền bằng mật khẩu ad0804) và KHÔNG BAO GIỜ bị trừ đi, kể cả khi
+    // làm sai câu hoặc admin rút bớt tiền (trừ bằng duc123/ad0804). Nhờ vậy nó
+    // phản ánh đúng "đã kiếm được tổng cộng bao nhiêu từ lúc tạo tài khoản". ----
     function loadBalance() {
         return cachedBalance;
     }
 
-    async function saveBalance(v) {
-        cachedBalance = v;
+    async function saveBalanceAndEarned(newBalance, newEarned) {
+        cachedBalance = newBalance;
+        cachedTotalEarned = newEarned;
         if (!currentUserId) return;
         try {
-            await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { balance: v });
-            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', currentUserId), { username: currentUsername, balance: v }, { merge: true });
+            await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { balance: newBalance, totalEarned: newEarned });
+            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', currentUserId), { username: currentUsername, balance: newBalance, totalEarned: newEarned }, { merge: true });
         } catch (e) { console.error('Lỗi lưu số dư:', e); }
     }
 
@@ -1911,7 +1928,7 @@
         try {
             const q = fsMod.query(
                 fsMod.collection(fbDb, 'leaderboard'),
-                fsMod.orderBy('balance', 'desc'),
+                fsMod.orderBy('totalEarned', 'desc'),
                 fsMod.limit(10)
             );
             const snap = await fsMod.getDocs(q);
@@ -1926,14 +1943,14 @@
                 const data = docSnap.data();
                 const isMe = docSnap.id === currentUserId;
                 const badge = medals[rank - 1] || `#${rank}`;
-                const bal = typeof data.balance === 'number' ? data.balance : 0;
-                const balClass = bal >= 0 ? 'positive' : 'negative';
+                const earned = typeof data.totalEarned === 'number' ? data.totalEarned : 0;
+                const balClass = earned >= 0 ? 'positive' : 'negative';
                 const name = escapeHtml(data.username || '???') + (isMe ? ' (bạn)' : '');
                 return `
                 <div class="lb-item ${isMe ? 'lb-me' : ''}">
                     <span class="lb-rank">${badge}</span>
                     <span class="lb-name">${name}</span>
-                    <span class="lb-balance ${balClass}">${bal.toLocaleString('vi-VN')} VNĐ</span>
+                    <span class="lb-balance ${balClass}">${earned.toLocaleString('vi-VN')} VNĐ</span>
                 </div>`;
             }).join('');
         } catch (e) {
@@ -1942,9 +1959,12 @@
         }
     }
 
+    // delta > 0 -> cộng thêm vào số dư VÀ vào tổng thu tích luỹ (leaderboard)
+    // delta < 0 -> chỉ trừ số dư, tổng thu tích luỹ giữ nguyên (rút ra không tính)
     async function addToBalance(delta) {
         const newBal = loadBalance() + delta;
-        await saveBalance(newBal);
+        const newEarned = delta > 0 ? cachedTotalEarned + delta : cachedTotalEarned;
+        await saveBalanceAndEarned(newBal, newEarned);
         updateBalanceDisplay();
     }
 
@@ -1957,7 +1977,11 @@
     }
 
     // ---- modal tuỳ chỉnh số dư: phải nhập đúng mật khẩu mới thấy được
-    // và chỉnh được số dư (nhập số dương để cộng thêm, số âm để trừ bớt) ----
+    // và chỉnh được số dư.
+    // - Mật khẩu duc123: chỉ được TRỪ tiền (bất kể nhập số dương hay âm,
+    //   hệ thống luôn trừ đi giá trị tuyệt đối của số đã nhập).
+    // - Mật khẩu ad0804: được CỘNG và TRỪ tự do (nhập số dương để cộng thêm,
+    //   số âm để trừ bớt), giống hành vi cũ. ----
     function openBalanceModal() {
         document.getElementById('balance-modal-overlay').classList.remove('hidden');
         document.getElementById('balance-modal-password-view').classList.remove('hidden');
@@ -1972,20 +1996,37 @@
 
     function submitBalancePassword() {
         const val = document.getElementById('balance-password-input').value;
-        if (val === BALANCE_PASSWORD) {
-            document.getElementById('balance-modal-password-view').classList.add('hidden');
-            document.getElementById('balance-modal-adjust-view').classList.remove('hidden');
-            document.getElementById('balance-modal-current-num').innerText = loadBalance().toLocaleString('vi-VN');
-            document.getElementById('balance-adjust-input').value = '';
+        if (val === BALANCE_PASSWORD_FULL) {
+            balanceModalMode = 'full';
+        } else if (val === BALANCE_PASSWORD_SUB) {
+            balanceModalMode = 'sub';
         } else {
             document.getElementById('balance-password-error').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('balance-modal-password-view').classList.add('hidden');
+        document.getElementById('balance-modal-adjust-view').classList.remove('hidden');
+        document.getElementById('balance-modal-current-num').innerText = loadBalance().toLocaleString('vi-VN');
+        document.getElementById('balance-adjust-input').value = '';
+
+        const hintEl = document.getElementById('balance-adjust-hint');
+        const inputEl = document.getElementById('balance-adjust-input');
+        if (balanceModalMode === 'sub') {
+            hintEl.innerText = 'Mật khẩu này chỉ được TRỪ tiền';
+            inputEl.placeholder = 'Nhập số muốn trừ (vd: 100)';
+        } else {
+            hintEl.innerText = 'Mật khẩu này được CỘNG và TRỪ tiền';
+            inputEl.placeholder = 'Nhập số (vd: 100 hoặc -100)';
         }
     }
 
     function submitBalanceAdjust() {
         const raw = document.getElementById('balance-adjust-input').value;
-        const delta = parseInt(raw);
+        let delta = parseInt(raw);
         if (isNaN(delta)) return;
+        if (balanceModalMode === 'sub') {
+            delta = -Math.abs(delta); // luôn trừ, bất kể dấu nhập vào
+        }
         addToBalance(delta);
         document.getElementById('balance-modal-current-num').innerText = loadBalance().toLocaleString('vi-VN');
         document.getElementById('balance-adjust-input').value = '';
