@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ANH DUC DEP TRAI S1TG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05060f;
+            --bg2: #0a0e1f;
+            --cyan: #00f6ff;
+            --magenta: #ff2ee6;
+            --purple: #8b2eff;
+            --green: #39ff14;
+            --red: #ff2965;
+            --yellow: #ffe600;
+            --text: #eafcff;
+            --panel: rgba(15, 20, 40, 0.75);
+        }
+
+        * { box-sizing: border-box; }
+
+        /* tắt bôi chọn / menu copy-tìm-kiếm khi bấm giữ (long-press) trên
+           điện thoại, và tắt viền xanh khi chạm trên di động */
+        html, body, button, h1, h2, h3, span, div, p {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        input {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            text-align: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+            margin: 0;
+            padding: 60px 12px 20px;
+            color: var(--text);
+            width: 100%;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(139,46,255,0.25), transparent 40%),
+                radial-gradient(circle at 80% 30%, rgba(0,246,255,0.2), transparent 45%),
+                radial-gradient(circle at 50% 90%, rgba(255,46,230,0.18), transparent 45%),
+                var(--bg);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* moving neon grid backdrop */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -10%;
+            background-image:
+                linear-gradient(rgba(0,246,255,0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,246,255,0.07) 1px, transparent 1px);
+            background-size: 42px 42px;
+            transform: perspective(500px) rotateX(60deg);
+            transform-origin: top;
+            animation: gridMove 14s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.5;
+        }
+        @keyframes gridMove {
+            from { background-position: 0 0; }
+            to { background-position: 0 420px; }
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+            margin: 0 auto;
+            background: var(--panel);
+            backdrop-filter: blur(10px);
+            padding: 24px 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(0,246,255,0.35);
+            box-shadow:
+                0 0 12px rgba(0,246,255,0.35),
+                0 0 40px rgba(139,46,255,0.25),
+                inset 0 0 20px rgba(0,246,255,0.05);
+            position: relative;
+            z-index: 1;
+            animation: floatIn 0.6s ease;
+        }
+        @keyframes floatIn {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        h1, h2 {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            margin-top: 0;
+        }
+
+        #main-menu h2, #submenu-pm h2, #submenu-td h2, #difficulty-screen h2, #start-screen h2 {
+            color: var(--cyan);
+            text-shadow: 0 0 6px var(--cyan), 0 0 22px rgba(0,246,255,0.6);
+            animation: flicker 4s infinite;
+        }
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 80%, 100% { opacity: 1; }
+            20%, 22% { opacity: 0.75; }
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        /* ===== Menu screens: category picker & operator picker ===== */
+        .menu-grid {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin: 22px 0 10px;
+            flex-wrap: wrap;
+        }
+
+        .op-category-box, .op-select-box {
+            width: 130px;
+            height: 130px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0,246,255,0.4);
+            border-radius: 16px;
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .op-category-box:hover, .op-select-box:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 14px rgba(0,246,255,0.5), 0 0 30px rgba(139,46,255,0.3);
+            transform: translateY(-2px);
+        }
+        .op-category-box:active, .op-select-box:active { transform: translateY(0) scale(0.96); }
+
+        .op-category-box span {
+            font-size: 42px;
+            line-height: 1.1;
+        }
+        .op-category-box .cat-divider {
+            font-size: 34px;
+            color: var(--magenta);
+            text-shadow: 0 0 8px rgba(255,46,230,0.6);
+        }
+
+        .op-select-box {
+            font-size: 56px;
+            background: linear-gradient(135deg, rgba(0,246,255,0.12), rgba(139,46,255,0.12));
+        }
+        .op-select-box:nth-child(2) {
+            background: linear-gradient(135deg, rgba(255,46,230,0.12), rgba(139,46,255,0.12));
+        }
+
+        .diff-grid {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin: 22px 0 10px;
+            flex-wrap: wrap;
+        }
+        .diff-box {
+            width: 100px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 17px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: rgba(255,255,255,0.04);
+        }
+        .diff-box:active { transform: scale(0.96); }
+        .diff-de {
+            border: 1px solid var(--green);
+            color: var(--green);
+            box-shadow: 0 0 10px rgba(57,255,20,0.25);
+        }
+        .diff-de:hover { box-shadow: 0 0 16px rgba(57,255,20,0.6); transform: translateY(-2px); }
+        .diff-thuong {
+            border: 1px solid var(--yellow);
+            color: var(--yellow);
+            box-shadow: 0 0 10px rgba(255,230,0,0.25);
+        }
+        .diff-thuong:hover { box-shadow: 0 0 16px rgba(255,230,0,0.6); transform: translateY(-2px); }
+        .diff-kho {
+            border: 1px solid var(--red);
+            color: var(--red);
+            box-shadow: 0 0 10px rgba(255,41,101,0.25);
+        }
+        .diff-kho:hover { box-shadow: 0 0 16px rgba(255,41,101,0.6); transform: translateY(-2px); }
+
+        /* ===== Digit-level (do kho theo so chu so) selector on submenu-pm ===== */
+        .digit-level-section {
+            margin-top: 20px;
+        }
+        .digit-level-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            color: var(--purple);
+            text-shadow: 0 0 8px rgba(139,46,255,0.7);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .digit-level-grid {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .digit-level-box {
+            width: 58px;
+            height: 58px;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 20px;
+            border: 1px solid rgba(0,246,255,0.4);
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .digit-level-box:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0,246,255,0.5);
+        }
+        .digit-level-box.selected {
+            background: linear-gradient(135deg, var(--magenta), var(--purple));
+            color: #fff;
+            border-color: var(--magenta);
+            box-shadow: 0 0 8px var(--magenta), 0 0 22px rgba(255,46,230,0.6);
+        }
+
+        /* ===== Mode select (Ôn / Kiểm Tra / Extra) trên start-screen ===== */
+        .mode-select-section {
+            margin-top: 20px;
+        }
+        .mode-select-grid {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .mode-box {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0,246,255,0.4);
+            color: var(--text);
+        }
+        .mode-on:hover { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,246,255,0.5); }
+        .mode-kt:hover { border-color: var(--yellow); box-shadow: 0 0 10px rgba(255,230,0,0.5); }
+        .mode-extra:hover { border-color: var(--purple); box-shadow: 0 0 10px rgba(139,46,255,0.6); }
+        .mode-box.selected {
+            background: linear-gradient(135deg, var(--magenta), var(--purple));
+            color: #fff;
+            border-color: var(--magenta);
+            box-shadow: 0 0 8px var(--magenta), 0 0 22px rgba(255,46,230,0.6);
+        }
+        .mode-hint {
+            font-size: 11px;
+            color: rgba(234,252,255,0.6);
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        /* ===== Thanh số dư + nút tuỳ chỉnh ở màn hình chính ===== */
+        .balance-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        #balance-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--green);
+            text-shadow: 0 0 8px rgba(57,255,20,0.5);
+        }
+        #balance-display.balance-negative {
+            color: var(--red);
+            text-shadow: 0 0 8px rgba(255,41,101,0.6);
+        }
+        .balance-custom-btn {
+            padding: 7px 12px;
+            font-size: 11px;
+            border-radius: 8px;
+            background: rgba(139,46,255,0.12);
+            border: 1px solid rgba(139,46,255,0.5);
+            color: var(--purple);
+        }
+        .balance-custom-btn:hover {
+            box-shadow: 0 0 10px rgba(139,46,255,0.5);
+        }
+
+        /* ===== Modal tuỳ chỉnh số dư (yêu cầu mật khẩu) ===== */
+        #balance-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2,3,10,0.78);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            padding: 16px;
+        }
+        #balance-modal-overlay.hidden { display: none; }
+        .balance-modal-card {
+            position: relative;
+            width: 280px;
+            max-width: 100%;
+            background: var(--panel);
+            border: 1px solid rgba(0,246,255,0.4);
+            border-radius: 18px;
+            padding: 26px 20px 20px;
+            box-shadow: 0 0 20px rgba(0,246,255,0.4), 0 0 50px rgba(139,46,255,0.3);
+            text-align: center;
+        }
+        .balance-modal-card .back-btn {
+            top: 8px;
+            left: 8px;
+            width: 34px;
+            height: 34px;
+            font-size: 16px;
+        }
+        .balance-modal-faces {
+            font-size: 34px;
+            margin-bottom: 10px;
+            letter-spacing: 10px;
+        }
+        .balance-modal-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        .balance-modal-current {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--cyan);
+            text-shadow: 0 0 8px rgba(0,246,255,0.5);
+            margin-bottom: 10px;
+        }
+        .balance-modal-error {
+            color: var(--red);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .balance-modal-error.hidden { display: none; }
+        .balance-modal-dollar {
+            font-size: 40px;
+            margin-top: 10px;
+            color: var(--green);
+            text-shadow: 0 0 10px rgba(57,255,20,0.6), 0 0 24px rgba(139,46,255,0.4);
+        }
+        .balance-modal-card button[onclick^="submitBalance"] {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: #04060d;
+            border: none;
+            width: 100%;
+        }
+
+        /* ===== GIF minh hoạ (g1) dưới phần lịch sử ở màn hình chính ===== */
+        .menu-gif-section {
+            margin-top: 18px;
+            display: flex;
+            justify-content: center;
+        }
+        .menu-gif-section img {
+            width: 100%;
+            max-width: 380px;
+            aspect-ratio: 380 / 128;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        /* ===== GIF phản hồi đúng/sai (g2/g3) khi làm bài ===== */
+        #feedback-overlay .fx-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .fx-gif {
+            display: none;
+            width: 220px;
+            max-width: 65vw;
+            height: auto;
+        }
+        #fx-gif-correct { aspect-ratio: 220 / 310; }
+        #fx-gif-wrong { aspect-ratio: 220 / 305; }
+        #feedback-overlay.show-correct #fx-gif-correct { display: block; }
+        #feedback-overlay.show-wrong #fx-gif-wrong { display: block; }
+
+        .back-btn {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            font-size: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #submenu-pm, #submenu-td, #difficulty-screen, #start-screen, #leaderboard-screen {
+            position: relative;
+            padding-top: 60px;
+        }
+
+        button {
+            padding: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(0,246,255,0.4);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            transition: all 0.15s ease;
+        }
+        button:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0,246,255,0.5);
+            transform: translateY(-1px);
+        }
+        button:active { transform: translateY(0) scale(0.96); }
+
+        button.selected {
+            background: linear-gradient(135deg, var(--magenta), var(--purple));
+            color: #fff;
+            border-color: var(--magenta);
+            box-shadow: 0 0 8px var(--magenta), 0 0 22px rgba(255,46,230,0.6);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            text-align: center;
+            margin: 10px 0;
+            border: 1px solid rgba(0,246,255,0.35);
+            border-radius: 10px;
+            box-sizing: border-box;
+            background: rgba(0,0,0,0.35);
+            color: var(--text);
+            font-family: 'Orbitron', sans-serif;
+            outline: none;
+        }
+        input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0,246,255,0.6);
+        }
+        input::placeholder { color: rgba(234,252,255,0.4); }
+
+        #start-screen button[onclick="startGame()"] {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: #04060d;
+            border: none;
+            width: 100%;
+            box-shadow: 0 0 14px rgba(0,246,255,0.6);
+            font-size: 16px;
+            padding: 14px;
+        }
+        #start-screen button[onclick="startGame()"]:hover {
+            box-shadow: 0 0 22px rgba(0,246,255,0.9), 0 0 36px rgba(139,46,255,0.6);
+        }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .numpad button { padding: 15px; font-size: 18px; }
+        .numpad button[onclick^="checkAnswer"] {
+            background: linear-gradient(135deg, var(--green), #00c2a8);
+            color: #04150a;
+            border: none;
+            box-shadow: 0 0 12px rgba(57,255,20,0.6);
+        }
+        .numpad button[onclick="clearInput()"] {
+            background: linear-gradient(135deg, var(--red), var(--magenta));
+            color: #fff;
+            border: none;
+            box-shadow: 0 0 12px rgba(255,41,101,0.5);
+        }
+
+        #status-bar {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        #timer {
+            color: var(--cyan);
+            text-shadow: 0 0 8px var(--cyan);
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+        #timer.critical {
+            color: var(--red);
+            text-shadow: 0 0 10px var(--red), 0 0 22px var(--red);
+            animation: pulseCritical 0.6s infinite;
+        }
+        @keyframes pulseCritical {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
+
+        .text-right { color: var(--green); text-shadow: 0 0 6px rgba(57,255,20,0.7); }
+        .text-wrong { color: var(--red); text-shadow: 0 0 6px rgba(255,41,101,0.7); }
+        .hidden { display: none; }
+
+        #question {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(22px, 7vw, 30px);
+            color: var(--text);
+            text-shadow: 0 0 10px rgba(255,255,255,0.35), 0 0 24px rgba(0,246,255,0.4);
+            margin: 8px 0 18px;
+            letter-spacing: 2px;
+        }
+
+        .music-controls {
+            position: fixed;
+            top: 8px;
+            right: 8px;
+            left: 8px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .music-controls button {
+            pointer-events: auto;
+            padding: 8px 10px;
+            font-size: 12px;
+            white-space: nowrap;
+            flex: 0 0 auto;
+        }
+        #music-btn {
+            background: rgba(20,25,45,0.85);
+            color: var(--cyan);
+            border: 1px solid rgba(0,246,255,0.5);
+            box-shadow: 0 0 10px rgba(0,246,255,0.35);
+        }
+        #track-btn {
+            background: rgba(20,25,45,0.85);
+            color: var(--magenta);
+            border: 1px solid rgba(255,46,230,0.5);
+            box-shadow: 0 0 10px rgba(255,46,230,0.35);
+        }
+
+        #final-score-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 52px;
+            color: var(--text);
+            text-shadow: 0 0 10px var(--cyan), 0 0 26px var(--purple);
+            margin: 6px 0 4px;
+        }
+        #final-score-detail {
+            font-size: 15px;
+            color: rgba(234,252,255,0.75);
+            margin: 0 0 6px;
+        }
+
+        /* shake animation on wrong answer */
+        .shake-anim {
+            animation: shake 0.45s ease;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translateX(-2px); }
+            20%, 80% { transform: translateX(4px); }
+            30%, 50%, 70% { transform: translateX(-8px); }
+            40%, 60% { transform: translateX(8px); }
+        }
+
+        /* correct answer glow pulse */
+        .correct-pulse {
+            animation: correctGlow 0.55s ease;
+        }
+        @keyframes correctGlow {
+            0% { box-shadow: 0 0 12px rgba(0,246,255,0.35), 0 0 40px rgba(139,46,255,0.25); }
+            40% { box-shadow: 0 0 26px var(--green), 0 0 60px rgba(57,255,20,0.7); border-color: var(--green); }
+            100% { box-shadow: 0 0 12px rgba(0,246,255,0.35), 0 0 40px rgba(139,46,255,0.25); }
+        }
+        .wrong-pulse {
+            animation: wrongGlow 0.55s ease;
+        }
+        @keyframes wrongGlow {
+            0% { box-shadow: 0 0 12px rgba(0,246,255,0.35), 0 0 40px rgba(139,46,255,0.25); }
+            40% { box-shadow: 0 0 26px var(--red), 0 0 60px rgba(255,41,101,0.7); border-color: var(--red); }
+            100% { box-shadow: 0 0 12px rgba(0,246,255,0.35), 0 0 40px rgba(139,46,255,0.25); }
+        }
+
+        /* fullscreen feedback overlay */
+        #feedback-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+        }
+        #feedback-overlay.show-correct {
+            animation: popFade 0.6s ease forwards;
+        }
+        #feedback-overlay.show-wrong {
+            animation: popFade 0.6s ease forwards;
+        }
+        #feedback-overlay .fx-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 46px;
+            font-weight: 900;
+            letter-spacing: 3px;
+        }
+        #feedback-overlay.show-correct .fx-text {
+            color: var(--green);
+            text-shadow: 0 0 14px var(--green), 0 0 40px rgba(57,255,20,0.8);
+        }
+        #feedback-overlay.show-wrong .fx-text {
+            color: var(--red);
+            text-shadow: 0 0 14px var(--red), 0 0 40px rgba(255,41,101,0.8);
+        }
+        @keyframes popFade {
+            0% { opacity: 0; transform: scale(0.6); }
+            25% { opacity: 1; transform: scale(1.15); }
+            40% { transform: scale(1); }
+            75% { opacity: 1; }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
+        /* history of past attempts */
+        .history-section {
+            margin-top: 22px;
+            text-align: left;
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            padding: 14px 16px 16px;
+            background-image: url('hinh.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .history-section::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(5,6,15,0.55), rgba(5,6,15,0.85));
+            z-index: 0;
+        }
+        .history-section > * {
+            position: relative;
+            z-index: 1;
+        }
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .history-header h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            color: var(--purple);
+            text-shadow: 0 0 8px rgba(139,46,255,0.7);
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        .clear-history-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 8px;
+            background: rgba(255,41,101,0.12);
+            border: 1px solid rgba(255,41,101,0.5);
+            color: var(--red);
+            box-shadow: none;
+        }
+        .clear-history-btn:hover {
+            box-shadow: 0 0 10px rgba(255,41,101,0.5);
+        }
+        #history-list {
+            max-height: 220px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 4px;
+        }
+        #history-list::-webkit-scrollbar { width: 6px; }
+        #history-list::-webkit-scrollbar-thumb { background: rgba(0,246,255,0.4); border-radius: 6px; }
+
+        .history-item {
+            border: 1px solid rgba(0,246,255,0.25);
+            border-radius: 10px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.03);
+        }
+        .history-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+        }
+        .history-date {
+            color: rgba(234,252,255,0.75);
+            letter-spacing: 0.5px;
+        }
+        .history-score {
+            color: var(--green);
+            text-shadow: 0 0 6px rgba(57,255,20,0.7);
+        }
+        .history-detail {
+            margin-top: 4px;
+            font-size: 13px;
+            color: rgba(234,252,255,0.65);
+        }
+        .history-money {
+            margin-top: 2px;
+            font-size: 13px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .history-money.positive {
+            color: var(--green);
+            text-shadow: 0 0 6px rgba(57,255,20,0.6);
+        }
+        .history-money.negative {
+            color: var(--red);
+            text-shadow: 0 0 6px rgba(255,41,101,0.6);
+        }
+        .history-empty {
+            font-size: 13px;
+            color: rgba(234,252,255,0.5);
+            text-align: center;
+            margin: 6px 0;
+        }
+
+        /* ===== Bảng xếp hạng (leaderboard) ===== */
+        #leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .lb-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,246,255,0.25);
+            background: rgba(255,255,255,0.03);
+        }
+        .lb-item.lb-me {
+            border-color: var(--magenta);
+            box-shadow: 0 0 10px rgba(255,46,230,0.4);
+            background: rgba(255,46,230,0.08);
+        }
+        .lb-rank {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            width: 34px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .lb-name {
+            flex: 1;
+            text-align: left;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .lb-balance {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .lb-balance.positive { color: var(--green); text-shadow: 0 0 6px rgba(57,255,20,0.6); }
+        .lb-balance.negative { color: var(--red); text-shadow: 0 0 6px rgba(255,41,101,0.6); }
+
+        /* floating particles for correct answers */
+        .spark {
+            position: fixed;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 9;
+            animation: sparkUp 0.9s ease-out forwards;
+        }
+        @keyframes sparkUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.6) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(-120px) scale(1.2) rotate(180deg); }
+        }
+
+        /* ===== Mobile tweaks ===== */
+        @media (max-width: 480px) {
+            body {
+                padding: 54px 8px 16px;
+            }
+            .container {
+                padding: 18px 14px;
+                border-radius: 14px;
+            }
+            .checkbox-group {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 6px;
+            }
+            .checkbox-group button {
+                padding: 10px 0;
+                font-size: 14px;
+                min-height: 40px;
+            }
+            input {
+                padding: 10px;
+            }
+            .numpad {
+                gap: 8px;
+            }
+            .numpad button {
+                padding: 14px 0;
+                font-size: 17px;
+                min-height: 48px;
+            }
+            #status-bar {
+                font-size: 14px;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            #status-bar > div {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .music-controls button {
+                padding: 7px 8px;
+                font-size: 11px;
+            }
+            #final-score-num {
+                font-size: 40px;
+            }
+            .history-header h3 {
+                font-size: 13px;
+            }
+            .clear-history-btn {
+                padding: 5px 8px;
+                font-size: 11px;
+            }
+            .op-category-box, .op-select-box {
+                width: 110px;
+                height: 110px;
+            }
+            .op-category-box span { font-size: 34px; }
+            .op-category-box .cat-divider { font-size: 28px; }
+            .op-select-box { font-size: 46px; }
+            .menu-grid { gap: 12px; }
+            .diff-box {
+                width: 84px;
+                height: 76px;
+                font-size: 15px;
+            }
+            .diff-grid { gap: 10px; }
+            .digit-level-box {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+            .back-btn {
+                top: 12px;
+                left: 12px;
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+            #submenu-pm, #submenu-td, #start-screen, #leaderboard-screen {
+                padding-top: 52px;
+            }
+        }
+
+        @media (max-width: 340px) {
+            .music-controls button {
+                font-size: 10px;
+                padding: 6px 6px;
+            }
+            #question {
+                letter-spacing: 1px;
+            }
+            .op-category-box, .op-select-box {
+                width: 95px;
+                height: 95px;
+            }
+            .op-category-box span { font-size: 28px; }
+            .op-category-box .cat-divider { font-size: 22px; }
+            .op-select-box { font-size: 38px; }
+            .diff-box {
+                width: 72px;
+                height: 66px;
+                font-size: 13px;
+            }
+            .digit-level-box {
+                width: 46px;
+                height: 46px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div class="music-controls">
+        <button id="track-btn" onclick="switchTrack()">🔄 Nhạc 1</button>
+        <button id="music-btn" onclick="toggleMusic()">🎵 Nhạc: Tắt</button>
+    </div>
+    <audio id="bg-music" loop>
+        <source src="nhac2.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="feedback-overlay">
+        <div class="fx-content">
+            <img id="fx-gif-correct" class="fx-gif" src="g2.gif" alt="" onerror="this.remove()">
+            <img id="fx-gif-wrong" class="fx-gif" src="g3.gif" alt="" onerror="this.remove()">
+            <span class="fx-text" id="fx-text"></span>
+        </div>
+    </div>
+
+    <div id="balance-modal-overlay" class="hidden">
+        <div class="balance-modal-card">
+            <button class="back-btn" onclick="closeBalanceModal()">⬅</button>
+
+            <div id="balance-modal-password-view">
+                <div class="balance-modal-faces">🙂 🙂</div>
+                <p class="balance-modal-label">Nhập mật khẩu để tuỳ chỉnh số dư</p>
+                <input type="password" id="balance-password-input" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter') submitBalancePassword()">
+                <button onclick="submitBalancePassword()" style="width:100%;">Vào</button>
+                <p id="balance-password-error" class="balance-modal-error hidden">Sai mật khẩu, thử lại nhé!</p>
+            </div>
+
+            <div id="balance-modal-adjust-view" class="hidden">
+                <div class="balance-modal-faces">🙂 🙂</div>
+                <p class="balance-modal-current">Số dư hiện tại: <span id="balance-modal-current-num">0</span> VNĐ</p>
+                <p id="balance-adjust-hint" class="mode-hint" style="margin-top:-4px;"></p>
+                <input type="number" id="balance-adjust-input" placeholder="Nhập số (vd: 100 hoặc -100)" onkeydown="if(event.key==='Enter') submitBalanceAdjust()">
+                <button onclick="submitBalanceAdjust()" style="width:100%;">Vào</button>
+                <div class="balance-modal-dollar">$</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="clear-history-modal-overlay" class="hidden">
+        <div class="balance-modal-card">
+            <button class="back-btn" onclick="closeClearHistoryModal()">⬅</button>
+            <div class="balance-modal-faces">🗑️</div>
+            <p class="balance-modal-label">Nhập mật khẩu để xoá lịch sử</p>
+            <input type="password" id="clear-history-password-input" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter') submitClearHistoryPassword()">
+            <button onclick="submitClearHistoryPassword()" style="width:100%;">Xoá</button>
+            <p id="clear-history-password-error" class="balance-modal-error hidden">Sai mật khẩu, thử lại nhé!</p>
+        </div>
+    </div>
+
+    <div class="container" id="auth-screen">
+        <h2>Đăng nhập</h2>
+        <p id="auth-status" style="font-size:13px;opacity:0.7;margin-top:-6px;">Đang kết nối...</p>
+        <input type="text" id="auth-username" placeholder="Tên đăng nhập" autocomplete="username">
+        <input type="password" id="auth-password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+        <p id="auth-error" class="balance-modal-error hidden"></p>
+        <button onclick="doLogin()" style="width:100%;" id="auth-login-btn" disabled>Đăng nhập</button>
+        <button onclick="doSignup()" style="width:100%; margin-top:8px;" id="auth-signup-btn" disabled>Đăng ký tài khoản mới</button>
+    </div>
+
+    <div class="container hidden" id="main-menu">
+        <div class="balance-bar">
+            <span id="balance-display">Số dư: 0 VNĐ</span>
+            <button class="balance-custom-btn" onclick="openBalanceModal()">⚙ Tuỳ chỉnh</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:12px;opacity:0.75;">👤 <span id="welcome-username"></span></span>
+            <button class="balance-custom-btn" onclick="doLogout()">Đăng xuất</button>
+        </div>
+        <button id="resume-session-btn" class="hidden" onclick="resumeGame()" style="width:100%; margin-bottom:14px; background: linear-gradient(135deg, var(--purple), var(--cyan)); color:#04060d; border:none; padding:14px;">
+            ▶ Tiếp tục làm bài dở
+            <div class="resume-sub" style="font-size:11px; font-weight:600; opacity:0.85; margin-top:4px;"></div>
+        </button>
+
+        <h2>Học toán đi em zai😨💗</h2>
+        <div class="menu-grid">
+            <button class="op-category-box" onclick="showScreen('submenu-pm')">
+                <span>+</span><span class="cat-divider">−</span>
+            </button>
+            <button class="op-category-box" onclick="showScreen('submenu-td')">
+                <span>×</span><span class="cat-divider">÷</span>
+            </button>
+        </div>
+
+        <button onclick="openLeaderboard()" style="width:100%; margin-top:14px; background: linear-gradient(135deg, var(--yellow), var(--red)); color:#1a0900; border:none;">🏆 Bảng Xếp Hạng Top 10</button>
+
+        <div class="history-section">
+            <div class="history-header">
+                <h3>📜 LỊCH SỬ LÀM BÀI</h3>
+                <button class="clear-history-btn" onclick="openClearHistoryModal()">Xoá hết</button>
+            </div>
+            <div id="history-list"></div>
+        </div>
+
+        <div class="menu-gif-section">
+            <img src="g1.gif" alt="" onerror="this.parentElement.remove()">
+        </div>
+    </div>
+
+    <div class="container hidden" id="leaderboard-screen">
+        <button class="back-btn" onclick="showScreen('main-menu')">⬅</button>
+        <h2>🏆 Top 10 </h2>
+        <div id="leaderboard-list"></div>
+    </div>
+
+    <div class="container hidden" id="submenu-pm">
+        <button class="back-btn" onclick="showScreen('main-menu')">⬅</button>
+        <h2>Cộng trừ</h2>
+        <div class="menu-grid">
+            <button class="op-select-box" onclick="openDifficultyMenu('add')">+</button>
+            <button class="op-select-box" onclick="openDifficultyMenu('sub')">−</button>
+        </div>
+        <div class="digit-level-section">
+            <div class="digit-level-label">CHỮ SỐ</div>
+            <div class="digit-level-grid">
+                <button class="digit-level-box selected" data-level="2" onclick="selectDigitLevel(2)">2</button>
+                <button class="digit-level-box" data-level="3" onclick="selectDigitLevel(3)">3</button>
+                <button class="digit-level-box" data-level="4" onclick="selectDigitLevel(4)">4</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container hidden" id="submenu-td">
+        <button class="back-btn" onclick="showScreen('main-menu')">⬅</button>
+        <h2>Nhân chia</h2>
+        <div class="menu-grid">
+            <button class="op-select-box" onclick="openSetup('mul')">×</button>
+            <button class="op-select-box" onclick="openSetup('div')">÷</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="difficulty-screen">
+        <button class="back-btn" onclick="showScreen(OPS[currentOperator].group)">⬅</button>
+        <h2 id="difficulty-title">Phép cộng</h2>
+        <div class="diff-grid">
+            <button class="diff-box diff-de" onclick="selectDifficulty('de')">Dễ</button>
+            <button class="diff-box diff-thuong" onclick="selectDifficulty('thuong')">Thường</button>
+            <button class="diff-box diff-kho" onclick="selectDifficulty('kho')">Khó</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="start-screen">
+        <button class="back-btn" onclick="showScreen(setupBackTarget)">⬅</button>
+        <h2 id="setup-title">Chọn bảng</h2>
+        <div class="checkbox-group">
+            <script>for(let i=1; i<=10; i++) document.write(`<button onclick="this.classList.toggle('selected')">${i}</button>`);</script>
+            <button onclick="selectFullTables()" style="grid-column: span 2; background: linear-gradient(135deg, var(--green), #00c2a8); color:#04150a; border:none;">Full (2-9)</button>
+        </div>
+        <input type="number" id="total-questions" placeholder="Số câu hỏi">
+        <input type="number" id="time-limit" placeholder="Giây mỗi câu">
+
+        <div class="mode-select-section">
+            <div class="digit-level-label">CHẾ ĐỘ</div>
+            <div class="mode-select-grid">
+                <button class="mode-box mode-on" data-mode="on" onclick="selectMode('on')">Ôn</button>
+                <button class="mode-box mode-kt selected" data-mode="kiemtra" onclick="selectMode('kiemtra')">Kiểm Tra</button>
+                <button class="mode-box mode-extra" data-mode="extra" onclick="selectMode('extra')">Extra</button>
+            </div>
+            <p class="mode-hint">Ôn: không cộng/trừ tiền · Kiểm Tra: đúng +10 / sai -10 · Extra: đúng +10 / sai -20, đúng &gt;90% tổng tiền x1.5</p>
+        </div>
+
+        <button onclick="startGame()" style="width: 100%;">Bắt đầu học</button>
+    </div>
+
+    <div class="container hidden" id="game-screen">
+        <h2 id="question">? x ? = ?</h2>
+        <div id="status-bar">
+            <div id="timer">Thời gian: --</div>
+            <div>
+                <span>Đúng: <span id="score-right" class="text-right">0</span></span>
+                <span>| Sai: <span id="score-wrong" class="text-wrong">0</span></span>
+            </div>
+        </div>
+        <input type="number" id="answer" readonly placeholder="Kết quả">
+        <div class="numpad">
+            <script>for(let i=1; i<=9; i++) document.write(`<button onclick="addDigit(${i})">${i}</button>`);</script>
+            <button onclick="clearInput()">⌫</button>
+            <button onclick="addDigit(0)">0</button>
+            <button onclick="checkAnswer()" style="background: #28a745; color: white;">OK</button>
+        </div>
+        <p>Câu: <span id="current-q">1</span>/<span id="max-q">?</span></p>
+    </div>
+
+    <div class="container hidden" id="result-screen">
+        <h2>Kết quả</h2>
+        <h1 id="final-score-num"></h1>
+        <p id="final-score-detail"></p>
+        <button onclick="restartApp()">Làm lại</button>
+    </div>
+
+<script>
+    let selectedTables = [], scoreRight = 0, scoreWrong = 0;
+    let sessionPlan = [], position = 0, currentQuestion = null, currentQuestionPos = -1;
+    let currentCorrect, timerInterval, timeLeft;
+    let audio = document.getElementById("bg-music"), isMusicPlaying = false;
+    let musicTracks = ['nhac2.mp3', 'nhac.mp3', 'nhac3.mp3', 'nhac4.mp3'];
+    let currentTrackIndex = 0;
+    let questionStartTime = 0, sessionQuestionTimes = [];
+    const BALANCE_PASSWORD_SUB = 'duc123';   // mật khẩu chỉ được TRỪ tiền
+    const BALANCE_PASSWORD_FULL = 'ad0804';  // mật khẩu được CỘNG và TRỪ tiền
+    let balanceModalMode = 'sub'; // 'sub' = chỉ trừ, 'full' = cộng/trừ tự do
+
+    function isKnownBalancePassword(val) {
+        return val === BALANCE_PASSWORD_SUB || val === BALANCE_PASSWORD_FULL;
+    }
+
+    // ================= FIREBASE (tài khoản riêng cho từng người) =================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCwSxZ-YiuVKIuRzmHYC_uy4quR4ssvEBM",
+        authDomain: "bccforben.firebaseapp.com",
+        projectId: "bccforben",
+        storageBucket: "bccforben.firebasestorage.app",
+        messagingSenderId: "810378202904",
+        appId: "1:810378202904:web:f948060af9e3fdf857986d"
+    };
+    const FIREBASE_SDK_VERSION = "10.13.0";
+    let fbAuth, fbDb, authMod, fsMod;
+    let currentUserId = null, currentUsername = '';
+    let cachedBalance = 0, cachedHistory = [], cachedTotalEarned = 0;
+
+    // tên đăng nhập không cần là email thật -> ghép thành 1 "email" nội bộ
+    // để Firebase Auth (vốn chỉ hỗ trợ email/password) chấp nhận được
+    function usernameToEmail(username) {
+        const clean = username.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '');
+        return `${clean}@mtcapp.local`;
+    }
+
+    function mapAuthError(e) {
+        const code = e && e.code ? e.code : '';
+        if (code.includes('email-already-in-use')) return 'Tên đăng nhập này đã có người dùng rồi!';
+        if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) return 'Sai tên đăng nhập hoặc mật khẩu!';
+        if (code.includes('weak-password')) return 'Mật khẩu cần ít nhất 6 ký tự!';
+        if (code.includes('invalid-email')) return 'Tên đăng nhập không hợp lệ (chỉ dùng chữ, số)!';
+        if (code.includes('network-request-failed')) return 'Lỗi mạng, thử lại nhé!';
+        return 'Có lỗi xảy ra, thử lại nhé!';
+    }
+
+    function showAuthError(msg) {
+        const el = document.getElementById('auth-error');
+        el.innerText = msg;
+        el.classList.remove('hidden');
+    }
+    function clearAuthError() {
+        document.getElementById('auth-error').classList.add('hidden');
+    }
+
+    async function initFirebase() {
+        const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app.js`);
+        authMod = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-auth.js`);
+        fsMod = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-firestore.js`);
+        const app = initializeApp(firebaseConfig);
+        fbAuth = authMod.getAuth(app);
+        fbDb = fsMod.getFirestore(app);
+
+        document.getElementById('auth-status').classList.add('hidden');
+        document.getElementById('auth-login-btn').disabled = false;
+        document.getElementById('auth-signup-btn').disabled = false;
+
+        authMod.onAuthStateChanged(fbAuth, async (user) => {
+            if (user) {
+                await loadUserData(user.uid);
+                showScreen('main-menu');
+            } else {
+                currentUserId = null;
+                showScreen('auth-screen');
+            }
+        });
+    }
+
+    async function doSignup() {
+        clearAuthError();
+        const uname = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value;
+        if (!uname || !pass) return showAuthError('Nhập đủ tên đăng nhập và mật khẩu nhé!');
+        if (pass.length < 6) return showAuthError('Mật khẩu cần ít nhất 6 ký tự!');
+        try {
+            const cred = await authMod.createUserWithEmailAndPassword(fbAuth, usernameToEmail(uname), pass);
+            await fsMod.setDoc(fsMod.doc(fbDb, 'users', cred.user.uid), { username: uname, balance: 0, totalEarned: 0, history: [] });
+            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', cred.user.uid), { username: uname, balance: 0, totalEarned: 0 });
+        } catch (e) {
+            showAuthError(mapAuthError(e));
+        }
+    }
+
+    async function doLogin() {
+        clearAuthError();
+        const uname = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value;
+        if (!uname || !pass) return showAuthError('Nhập đủ tên đăng nhập và mật khẩu nhé!');
+        try {
+            await authMod.signInWithEmailAndPassword(fbAuth, usernameToEmail(uname), pass);
+        } catch (e) {
+            showAuthError(mapAuthError(e));
+        }
+    }
+
+    function doLogout() {
+        authMod.signOut(fbAuth);
+        document.getElementById('auth-username').value = '';
+        document.getElementById('auth-password').value = '';
+    }
+
+    async function loadUserData(uid) {
+        currentUserId = uid;
+        const ref = fsMod.doc(fbDb, 'users', uid);
+        const snap = await fsMod.getDoc(ref);
+        let data;
+        if (snap.exists()) {
+            data = snap.data();
+        } else {
+            data = { username: document.getElementById('auth-username').value.trim() || 'Bạn', balance: 0, totalEarned: 0, history: [] };
+            await fsMod.setDoc(ref, data);
+            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', uid), { username: data.username, balance: 0, totalEarned: 0 });
+        }
+        currentUsername = data.username || '';
+        cachedBalance = typeof data.balance === 'number' ? data.balance : 0;
+        // tổng thu tích luỹ từ lúc tạo tài khoản; nếu tài khoản cũ chưa có
+        // trường này thì khởi tạo bằng số dư hiện tại (không để bị âm)
+        cachedTotalEarned = typeof data.totalEarned === 'number' ? data.totalEarned : Math.max(0, cachedBalance);
+        cachedHistory = Array.isArray(data.history) ? data.history : [];
+        document.getElementById('welcome-username').innerText = currentUsername;
+        updateBalanceDisplay();
+        renderHistory();
+    }
+    // ================================================================================
+
+    // ---- các phép tính hỗ trợ: symbol hiển thị, tên gọi, và submenu cha
+    // (dùng để nút back trên màn hình chọn bảng biết quay về đâu) ----
+    const OPS = {
+        add: { symbol: '+', label: 'Phép cộng', group: 'submenu-pm', title: 'Chọn bảng cộng' },
+        sub: { symbol: '−', label: 'Phép trừ',  group: 'submenu-pm', title: 'Chọn bảng trừ' },
+        mul: { symbol: '×', label: 'Phép nhân', group: 'submenu-td', title: 'Chọn bảng nhân' },
+        div: { symbol: '÷', label: 'Phép chia', group: 'submenu-td', title: 'Chọn bảng chia' }
+    };
+    let currentOperator = 'mul';
+    let currentDifficulty = 'de';
+    let currentDigitLevel = 2; // dùng cho Cộng/Trừ: 2, 3 hoặc 4 chữ số
+    let setupBackTarget = 'main-menu';
+    const DIFF_LABELS = { de: 'Dễ', thuong: 'Thường', kho: 'Khó' };
+
+    // ---- chế độ làm bài: Ôn (không tính tiền) / Kiểm Tra (như cũ) / Extra
+    // (đúng +10, sai -20, đúng >90% thì nhân tổng tiền của phiên lên x1.5) ----
+    let currentMode = 'kiemtra';
+    const MODE_LABELS = { on: 'Ôn', kiemtra: 'Kiểm Tra', extra: 'Extra' };
+
+    function selectMode(m) {
+        currentMode = m;
+        document.querySelectorAll('#start-screen .mode-box').forEach(b => {
+            b.classList.toggle('selected', b.dataset.mode === m);
+        });
+    }
+
+    // ---- điều hướng màn hình: ẩn tất cả .container, hiện đúng 1 cái ----
+    function showScreen(id) {
+        document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        if (id === 'main-menu') updateResumeButton();
+    }
+
+    // ================= LƯU/TIẾP TỤC BÀI ĐANG LÀM DỞ =================
+    // Lưu vào localStorage của trình duyệt (không qua mạng), để nếu lỡ tay
+    // reset/thoát trang giữa chừng thì vào lại vẫn có nút "Tiếp tục làm bài".
+    // Mỗi lần một câu hỏi MỚI được hiển thị, trạng thái hiện tại được lưu lại;
+    // gắn kèm currentUserId để chỉ hiện nút cho đúng người vừa đăng nhập. ----
+    const RESUME_KEY = 'mtc_paused_session';
+
+    function saveGameState() {
+        try {
+            const state = {
+                operator: currentOperator,
+                difficulty: currentDifficulty,
+                digitLevel: currentDigitLevel,
+                mode: currentMode,
+                selectedTables: selectedTables,
+                timeLimit: document.getElementById('time-limit') ? document.getElementById('time-limit').value : '',
+                sessionPlan: sessionPlan,
+                position: position,
+                currentQuestion: currentQuestion,
+                currentQuestionPos: currentQuestionPos,
+                scoreRight: scoreRight,
+                scoreWrong: scoreWrong,
+                sessionQuestionTimes: sessionQuestionTimes,
+                userId: currentUserId,
+                savedAt: Date.now()
+            };
+            localStorage.setItem(RESUME_KEY, JSON.stringify(state));
+        } catch (e) { console.error('Lỗi lưu tiến trình:', e); }
+    }
+
+    function getSavedGameState() {
+        try {
+            const raw = localStorage.getItem(RESUME_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (!data || !Array.isArray(data.sessionPlan) || data.sessionPlan.length === 0) return null;
+            if (typeof data.position !== 'number' || data.position >= data.sessionPlan.length) return null;
+            return data;
+        } catch (e) { return null; }
+    }
+
+    function clearSavedGameState() {
+        try { localStorage.removeItem(RESUME_KEY); } catch (e) { /* ignore */ }
+    }
+
+    // hiện/ẩn nút "Tiếp tục làm bài" trên màn hình chính tuỳ theo có bài dở
+    // dang của ĐÚNG tài khoản đang đăng nhập hiện tại hay không
+    function updateResumeButton() {
+        const btn = document.getElementById('resume-session-btn');
+        if (!btn) return;
+        const saved = getSavedGameState();
+        if (saved && saved.userId === currentUserId) {
+            const sub = btn.querySelector('.resume-sub');
+            if (sub) sub.innerText = `Câu ${saved.position}/${saved.sessionPlan.length} • Đúng ${saved.scoreRight} • Sai ${saved.scoreWrong}`;
+            btn.classList.remove('hidden');
+        } else {
+            btn.classList.add('hidden');
+        }
+    }
+
+    // khôi phục lại đúng câu hỏi đang làm dở, không tính là câu mới
+    function redisplayCurrentQuestion() {
+        if (!currentQuestion) { nextQuestion(); return; }
+        currentCorrect = currentQuestion.res;
+        document.getElementById('question').innerText = currentQuestion.display;
+        document.getElementById('answer').value = '';
+        document.getElementById('timer').classList.remove('critical');
+        updateProgressLabel();
+        questionStartTime = Date.now();
+        startTimer();
+    }
+
+    function resumeGame() {
+        const saved = getSavedGameState();
+        if (!saved || saved.userId !== currentUserId) { updateResumeButton(); return; }
+
+        currentOperator = saved.operator;
+        currentDifficulty = saved.difficulty;
+        currentDigitLevel = saved.digitLevel;
+        currentMode = saved.mode;
+        selectedTables = saved.selectedTables || [];
+        sessionPlan = saved.sessionPlan;
+        position = saved.position;
+        currentQuestion = saved.currentQuestion;
+        currentQuestionPos = saved.currentQuestionPos;
+        scoreRight = saved.scoreRight;
+        scoreWrong = saved.scoreWrong;
+        sessionQuestionTimes = saved.sessionQuestionTimes || [];
+
+        if (document.getElementById('time-limit')) document.getElementById('time-limit').value = saved.timeLimit;
+        document.getElementById('score-right').innerText = scoreRight;
+        document.getElementById('score-wrong').innerText = scoreWrong;
+
+        showScreen('game-screen');
+        redisplayCurrentQuestion();
+    }
+    // -------------------------------------------------------------------------
+
+    // ---- chọn độ khó theo số chữ số (2/3/4) cho Cộng/Trừ, bật sáng như công tắc ----
+    function selectDigitLevel(n) {
+        currentDigitLevel = n;
+        document.querySelectorAll('#submenu-pm .digit-level-box').forEach(b => {
+            b.classList.toggle('selected', parseInt(b.dataset.level) === n);
+        });
+    }
+
+    // ---- mở màn hình chọn bảng (start-screen) cho nhân/chia ----
+    function openSetup(op) {
+        currentOperator = op;
+        document.getElementById('setup-title').innerText = OPS[op].title;
+        document.querySelector('#start-screen .checkbox-group').classList.remove('hidden');
+        document.querySelectorAll('#start-screen .checkbox-group button.selected')
+            .forEach(el => el.classList.remove('selected'));
+        setupBackTarget = OPS[op].group;
+        showScreen('start-screen');
+    }
+
+    // ---- chọn nhanh bảng 2-9 (nút "Full") ----
+    function selectFullTables() {
+        const fullSet = [2,3,4,5,6,7,8,9];
+        document.querySelectorAll('#start-screen .checkbox-group button').forEach(el => {
+            const n = parseInt(el.innerText);
+            if (!isNaN(n)) {
+                el.classList.toggle('selected', fullSet.includes(n));
+            }
+        });
+    }
+
+    // ---- cộng/trừ: mở màn hình chọn độ khó thay vì chọn bảng ----
+    function openDifficultyMenu(op) {
+        currentOperator = op;
+        document.getElementById('difficulty-title').innerText = `${OPS[op].label} - ${currentDigitLevel} chữ số`;
+        showScreen('difficulty-screen');
+    }
+
+    function selectDifficulty(diff) {
+        currentDifficulty = diff;
+        document.getElementById('setup-title').innerText = `${OPS[currentOperator].label} - ${currentDigitLevel} chữ số - Mức ${DIFF_LABELS[diff]}`;
+        document.querySelector('#start-screen .checkbox-group').classList.add('hidden');
+        setupBackTarget = 'difficulty-screen';
+        showScreen('start-screen');
+    }
+
+    function toggleMusic() {
+        if (isMusicPlaying) {
+            audio.pause();
+            document.getElementById("music-btn").innerText = "🎵 Nhạc: Tắt";
+            isMusicPlaying = false;
+        } else {
+            audio.play().then(() => {
+                document.getElementById("music-btn").innerText = "🎵 Nhạc: Bật";
+                isMusicPlaying = true;
+            }).catch(() => { /* trình duyệt vẫn chặn, giữ trạng thái tắt */ });
+        }
+    }
+
+    // đổi bài nhạc: chỉ đổi khi bấm nút, đổi xong tự phát loop bài mới
+    // đúng theo trạng thái đang bật/tắt hiện tại
+    function switchTrack() {
+        currentTrackIndex = (currentTrackIndex + 1) % musicTracks.length;
+        audio.src = musicTracks[currentTrackIndex];
+        document.getElementById('track-btn').innerText = `🔄 Nhạc ${currentTrackIndex + 1}`;
+        if (isMusicPlaying) {
+            audio.play().catch(() => { /* trình duyệt chặn, giữ nguyên trạng thái */ });
+        }
+    }
+
+    // thử tự phát ngay khi vào trang; nếu trình duyệt cho phép âm thanh thì
+    // nhạc chạy luôn, nếu không thì người dùng tự bấm nút 🎵 để bật.
+    // Sau đó nhạc chỉ dừng khi bấm nút, không tự tắt khi làm bài/nhập liệu.
+    window.addEventListener('load', () => {
+        audio.play().then(() => {
+            document.getElementById("music-btn").innerText = "🎵 Nhạc: Bật";
+            isMusicPlaying = true;
+        }).catch(() => { /* bị chặn autoplay, chờ người dùng bấm nút */ });
+    });
+
+    // ---- smart randomization: build every possible combo for nhân/chia,
+    // shuffle it, and draw without replacement per pass so repeats only
+    // happen once every full cycle through the combos ----
+    // t = số bảng đã chọn (1-10), m = số kèm theo (1-10)
+    function buildCombos(tables, operator) {
+        let combos = [];
+        const symbol = OPS[operator].symbol;
+        for (const t of tables) {
+            for (let m = 1; m <= 10; m++) {
+                let a, b, res;
+                if (operator === 'div') { a = t * m; b = t; res = m; }
+                else { a = t; b = m; res = t * m; } // mul
+                combos.push({ t, m, display: `${a} ${symbol} ${b} = ?`, res });
+            }
+        }
+        return combos;
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function generateSessionPlan(n, tables, operator) {
+        const combos = buildCombos(tables, operator);
+        const queue = [];
+        while (queue.length < n) {
+            const pass = shuffle([...combos]);
+            // avoid an immediate repeat right at the seam between two passes
+            if (queue.length && pass.length > 1 &&
+                pass[0].t === queue[queue.length - 1].t && pass[0].m === queue[queue.length - 1].m) {
+                [pass[0], pass[1]] = [pass[1], pass[0]];
+            }
+            queue.push(...pass);
+        }
+        return queue.slice(0, n).map(q => ({ ...q }));
+    }
+    // -------------------------------------------------------------------------
+
+    // ---- CỘNG / TRỪ CÓ NHỚ: sinh câu hỏi theo 3 mức độ (Dễ/Thường/Khó)
+    // và theo số chữ số (2/3/4) ----
+    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    // đếm số lần "nhớ" khi cộng a + b theo cột
+    function countCarries(a, b) {
+        let sa = a.toString(), sb = b.toString();
+        const len = Math.max(sa.length, sb.length);
+        sa = sa.padStart(len, '0'); sb = sb.padStart(len, '0');
+        let carry = 0, count = 0;
+        for (let i = len - 1; i >= 0; i--) {
+            const sum = parseInt(sa[i]) + parseInt(sb[i]) + carry;
+            if (sum >= 10) { carry = 1; count++; } else carry = 0;
+        }
+        return count;
+    }
+
+    // đếm số lần "mượn" khi trừ a - b theo cột (yêu cầu a >= b)
+    function countBorrows(a, b) {
+        let sa = a.toString(), sb = b.toString();
+        const len = Math.max(sa.length, sb.length);
+        sa = sa.padStart(len, '0'); sb = sb.padStart(len, '0');
+        let borrow = 0, count = 0;
+        for (let i = len - 1; i >= 0; i--) {
+            let da = parseInt(sa[i]) - borrow, db = parseInt(sb[i]);
+            if (da < db) { borrow = 1; count++; } else borrow = 0;
+        }
+        return count;
+    }
+
+    // ===== Mức 2 chữ số (mặc định) =====
+    function genAddEasy() {
+        // 2 chữ số + 1 chữ số, bắt buộc có nhớ (đơn vị cộng lại >= 10)
+        const unitsA = randInt(1, 9);
+        const tensA = randInt(1, 8);
+        const a = tensA * 10 + unitsA;
+        const minB = Math.max(1, 10 - unitsA);
+        const b = randInt(minB, 9);
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+
+    function genAddNormal() {
+        // 2 chữ số + 2 chữ số, có nhớ, và 1 trong 2 số tròn chục (có số 0)
+        const useRoundA = Math.random() < 0.5;
+        const tens1 = randInt(1, 8);
+        const round = tens1 * 10; // số tròn chục, ví dụ 40
+        const unitsB = randInt(1, 9);
+        const tens2 = randInt(1, Math.max(1, 8 - tens1));
+        const other = tens2 * 10 + unitsB;
+        const a = useRoundA ? round : other;
+        const b = useRoundA ? other : round;
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+
+    function genAddHard() {
+        // tìm ẩn số x: x + a = c  hoặc  a + x = c
+        const b = randInt(10, 80);
+        const x = randInt(1, 99 - b);
+        const c = b + x;
+        const display = Math.random() < 0.5 ? `x + ${b} = ${c}` : `${b} + x = ${c}`;
+        return { display, res: x };
+    }
+
+    function genSubEasy() {
+        // trừ có mượn cơ bản: chữ số hàng đơn vị của số bị trừ < số trừ
+        const unitsB = randInt(1, 9);
+        const unitsA = randInt(0, unitsB - 1);
+        const tensB = randInt(1, 8);
+        const tensA = randInt(tensB + 1, 9);
+        const a = tensA * 10 + unitsA;
+        const b = tensB * 10 + unitsB;
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+
+    function genSubNormal() {
+        // số bị trừ tròn chục (hàng đơn vị = 0) -> phải mượn liên hoàn
+        const tensA = randInt(2, 9);
+        const a = tensA * 10;
+        const unitsB = randInt(1, 9);
+        const tensB = randInt(1, tensA - 1);
+        const b = tensB * 10 + unitsB;
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+
+    function genSubHard() {
+        // 50%: trừ số lớn; 50%: tìm x (x + b = c)
+        if (Math.random() < 0.5) {
+            const a = randInt(50, 99);
+            const b = randInt(10, a - 1);
+            return { display: `${a} - ${b} = ?`, res: a - b };
+        }
+        const b = randInt(10, 80);
+        const x = randInt(1, 99 - b);
+        const c = b + x;
+        return { display: `x + ${b} = ${c}`, res: x };
+    }
+
+    // ===== Mức 3 chữ số: cộng/trừ 3 số với 2 số (hoặc 3 số), thường có nhớ =====
+    function genAdd3Easy() {
+        // 3 chữ số + 2 chữ số, có nhớ, không tràn lên 4 chữ số
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 990); b = randInt(10, 99);
+            if (a + b <= 999 && countCarries(a, b) >= 1) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+    function genAdd3Normal() {
+        // 3 chữ số + 3 chữ số, có nhớ, không tràn lên 4 chữ số
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 899); b = randInt(100, 999 - a);
+            if (countCarries(a, b) >= 1) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+    function genAdd3Hard() {
+        // 50%: tìm x (3 chữ số); 50%: 3 chữ số + 3 chữ số nhớ nhiều lần
+        if (Math.random() < 0.5) {
+            const b = randInt(100, 700);
+            const x = randInt(10, Math.max(10, 899 - b));
+            const c = b + x;
+            const display = Math.random() < 0.5 ? `x + ${b} = ${c}` : `${b} + x = ${c}`;
+            return { display, res: x };
+        }
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 899); b = randInt(100, 999 - a);
+            if (countCarries(a, b) >= 2) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+
+    function genSub3Easy() {
+        // 3 chữ số - 2 chữ số (hoặc 3 chữ số), mượn cơ bản 1 lần
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 999); b = randInt(10, a - 1);
+            if (countBorrows(a, b) >= 1) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+    function genSub3Normal() {
+        // 3 chữ số - 3 chữ số, mượn 1 lần
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(100, 999); b = randInt(100, a - 1);
+            if (countBorrows(a, b) >= 1) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+    function genSub3Hard() {
+        // 50%: tìm x; 50%: 3 chữ số - 3 chữ số mượn liên hoàn 2 lần
+        if (Math.random() < 0.5) {
+            const b = randInt(100, 700);
+            const x = randInt(10, Math.max(10, 899 - b));
+            const c = b + x;
+            return { display: `x + ${b} = ${c}`, res: x };
+        }
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(200, 999); b = randInt(100, a - 1);
+            if (countBorrows(a, b) >= 2) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+
+    // ===== Mức 4 chữ số: cộng/trừ với 2-3 chữ số, có thể tràn lên 4 chữ số
+    // hoặc từ 4 chữ số mượn tụt xuống còn 3 chữ số =====
+    function genAdd4Easy() {
+        // 3 chữ số + 3 chữ số, tổng tràn lên 4 chữ số
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(500, 999); b = randInt(500, 999);
+            if (a + b >= 1000 && a + b <= 1999) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+    function genAdd4Normal() {
+        // 4 chữ số + 3 chữ số, có nhớ
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(1000, 8999); b = randInt(100, 999);
+            if (a + b <= 9999 && countCarries(a, b) >= 1) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+    function genAdd4Hard() {
+        // 40%: tìm x (4 chữ số); còn lại: 4 chữ số + 4 chữ số nhớ nhiều lần
+        if (Math.random() < 0.4) {
+            const b = randInt(1000, 8000);
+            const x = randInt(100, Math.max(100, 9999 - b));
+            const c = b + x;
+            const display = Math.random() < 0.5 ? `x + ${b} = ${c}` : `${b} + x = ${c}`;
+            return { display, res: x };
+        }
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(1000, 8999); b = randInt(1000, 9999 - a);
+            if (countCarries(a, b) >= 2) break;
+        }
+        return { display: `${a} + ${b} = ?`, res: a + b };
+    }
+
+    function genSub4Easy() {
+        // 4 chữ số - 3 chữ số, kết quả tụt xuống còn 3 chữ số (mượn liên hoàn)
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(1000, 1200); b = randInt(100, 999);
+            if (a - b >= 1 && countBorrows(a, b) >= 1) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+    function genSub4Normal() {
+        // 4 chữ số - 3 chữ số (hoặc 4 chữ số), mượn ít nhất 1 lần
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(1000, 9999); b = randInt(100, a - 1);
+            if (countBorrows(a, b) >= 1) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+    function genSub4Hard() {
+        // 40%: tìm x; còn lại: 4 chữ số - 4 chữ số mượn liên hoàn nhiều lần
+        if (Math.random() < 0.4) {
+            const b = randInt(1000, 8000);
+            const x = randInt(100, Math.max(100, 9999 - b));
+            const c = b + x;
+            return { display: `x + ${b} = ${c}`, res: x };
+        }
+        let a, b;
+        for (let i = 0; i < 200; i++) {
+            a = randInt(2000, 9999); b = randInt(1000, a - 1);
+            if (countBorrows(a, b) >= 2) break;
+        }
+        return { display: `${a} - ${b} = ?`, res: a - b };
+    }
+
+    function generateWordQuestion(operator, difficulty, digitLevel) {
+        if (digitLevel === 3) {
+            if (operator === 'add') {
+                if (difficulty === 'de') return genAdd3Easy();
+                if (difficulty === 'thuong') return genAdd3Normal();
+                return genAdd3Hard();
+            }
+            if (difficulty === 'de') return genSub3Easy();
+            if (difficulty === 'thuong') return genSub3Normal();
+            return genSub3Hard();
+        }
+        if (digitLevel === 4) {
+            if (operator === 'add') {
+                if (difficulty === 'de') return genAdd4Easy();
+                if (difficulty === 'thuong') return genAdd4Normal();
+                return genAdd4Hard();
+            }
+            if (difficulty === 'de') return genSub4Easy();
+            if (difficulty === 'thuong') return genSub4Normal();
+            return genSub4Hard();
+        }
+        // digitLevel === 2 (mặc định)
+        if (operator === 'add') {
+            if (difficulty === 'de') return genAddEasy();
+            if (difficulty === 'thuong') return genAddNormal();
+            return genAddHard();
+        }
+        if (difficulty === 'de') return genSubEasy();
+        if (difficulty === 'thuong') return genSubNormal();
+        return genSubHard();
+    }
+
+    function generateWordSessionPlan(n, operator, difficulty, digitLevel) {
+        const queue = [];
+        let guard = 0;
+        while (queue.length < n && guard < n * 25) {
+            guard++;
+            const q = generateWordQuestion(operator, difficulty, digitLevel);
+            // tránh lặp lại y hệt câu ngay trước đó
+            if (queue.length && queue[queue.length - 1].display === q.display) continue;
+            queue.push(q);
+        }
+        while (queue.length < n) queue.push(generateWordQuestion(operator, difficulty, digitLevel));
+        return queue;
+    }
+    // -------------------------------------------------------------------------
+
+    function updateProgressLabel() {
+        document.getElementById('current-q').innerText = position;
+        document.getElementById('max-q').innerText = sessionPlan.length;
+    }
+
+    function startGame() {
+        const total = parseInt(document.getElementById('total-questions').value);
+        if (!total || total <= 0) return alert("Điền số câu hỏi nhé!");
+
+        if (currentOperator === 'add' || currentOperator === 'sub') {
+            sessionPlan = generateWordSessionPlan(total, currentOperator, currentDifficulty, currentDigitLevel);
+        } else {
+            selectedTables = Array.from(document.querySelectorAll('#start-screen .selected')).map(el => parseInt(el.innerText)).filter(n => !isNaN(n));
+            if (selectedTables.length === 0) return alert("Chọn ít nhất 1 bảng nhé!");
+            sessionPlan = generateSessionPlan(total, selectedTables, currentOperator);
+        }
+
+        position = 0;
+        scoreRight = 0;
+        scoreWrong = 0;
+        sessionQuestionTimes = [];
+        document.getElementById('score-right').innerText = 0;
+        document.getElementById('score-wrong').innerText = 0;
+        showScreen('game-screen');
+        nextQuestion();
+    }
+
+    function startTimer() {
+        timeLeft = parseInt(document.getElementById('time-limit').value);
+        const timerEl = document.getElementById('timer');
+        timerEl.classList.remove('critical');
+        timerEl.innerText = "Thời gian: " + timeLeft;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = "Thời gian: " + timeLeft;
+            if (timeLeft <= 3) { timerEl.classList.add('critical'); }
+            if (timeLeft <= 0) { clearInterval(timerInterval); checkAnswer(true); }
+        }, 1000);
+    }
+
+    function nextQuestion() {
+        clearInterval(timerInterval);
+        if (position >= sessionPlan.length) {
+            finishSession();
+            return;
+        }
+        currentQuestion = sessionPlan[position];
+        currentQuestionPos = position;
+        position++;
+        currentCorrect = currentQuestion.res;
+        document.getElementById('question').innerText = currentQuestion.display;
+        document.getElementById('answer').value = '';
+        document.getElementById('timer').classList.remove('critical');
+        updateProgressLabel();
+        questionStartTime = Date.now();
+        startTimer();
+        saveGameState();
+    }
+
+    function finishSession() {
+        clearSavedGameState();
+        const totalAttempts = scoreRight + scoreWrong;
+        const score10 = totalAttempts > 0 ? Math.round((scoreRight / totalAttempts) * 100) / 10 : 0;
+        const avgTime = sessionQuestionTimes.length > 0
+            ? (sessionQuestionTimes.reduce((a, b) => a + b, 0) / sessionQuestionTimes.length)
+            : 0;
+
+        // ---- tính tiền theo chế độ ----
+        // Kiểm Tra: tiền đã được cộng/trừ trực tiếp theo từng câu lúc làm bài,
+        // ở đây chỉ tính lại để ghi vào lịch sử.
+        // Extra: không cộng/trừ theo từng câu, tính gộp ở cuối bài rồi cộng 1 lần
+        // (để có thể áp dụng thưởng x1.5 khi đúng >90%).
+        // Ôn: không tính tiền.
+        let moneyEarned = 0;
+        let bonusApplied = false;
+        if (currentMode === 'kiemtra') {
+            moneyEarned = scoreRight * 10 - scoreWrong * 10;
+        } else if (currentMode === 'extra') {
+            let base = scoreRight * 10 - scoreWrong * 20;
+            const accuracy = totalAttempts > 0 ? scoreRight / totalAttempts : 0;
+            if (accuracy > 0.9) {
+                base = Math.round(base * 1.5);
+                bonusApplied = true;
+            }
+            moneyEarned = base;
+            addToBalance(moneyEarned);
+        }
+        // currentMode === 'on' -> moneyEarned giữ nguyên 0, không đụng tới số dư
+
+        showScreen('result-screen');
+        document.getElementById('final-score-num').innerText = `${score10.toFixed(1)}/10`;
+        document.getElementById('final-score-detail').innerText =
+            `Đúng: ${scoreRight} • Sai: ${scoreWrong} • TB ${avgTime.toFixed(1)}s/câu`;
+
+        let opLabel = OPS[currentOperator].label;
+        if (currentOperator === 'add' || currentOperator === 'sub') {
+            opLabel += ` (${currentDigitLevel} chữ số, ${DIFF_LABELS[currentDifficulty]})`;
+        } else {
+            // nhân/chia: ghi rõ đã học bảng nào, ví dụ "Phép nhân bảng 2 3 4 7"
+            const tablesSorted = [...selectedTables].sort((a, b) => a - b);
+            opLabel += ` bảng ${tablesSorted.join(' ')}`;
+        }
+        opLabel += ` • ${MODE_LABELS[currentMode]}`;
+        if (bonusApplied) opLabel += ' 🎁x1.5';
+
+        saveHistoryEntry({
+            date: formatNow(),
+            opLabel,
+            totalAnswered: sessionPlan.length,
+            correct: scoreRight,
+            wrong: scoreWrong,
+            avgTime: avgTime.toFixed(1),
+            score: score10.toFixed(1),
+            money: moneyEarned
+        });
+        renderHistory();
+    }
+
+    // ---- lịch sử làm bài: lưu trên Firestore theo từng tài khoản, KHÔNG giới
+    // hạn số lượng, lần mới nhất lên đầu, chỉ xoá khi bấm nút "Xoá hết" ----
+    function formatNow() {
+        const d = new Date();
+        const pad = n => n.toString().padStart(2, '0');
+        return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function loadHistory() {
+        return cachedHistory;
+    }
+
+    async function saveHistoryEntry(entry) {
+        cachedHistory = [entry, ...cachedHistory];
+        if (!currentUserId) return;
+        try {
+            await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { history: cachedHistory });
+        } catch (e) { console.error('Lỗi lưu lịch sử:', e); }
+    }
+
+    function openClearHistoryModal() {
+        document.getElementById('clear-history-modal-overlay').classList.remove('hidden');
+        document.getElementById('clear-history-password-input').value = '';
+        document.getElementById('clear-history-password-error').classList.add('hidden');
+    }
+
+    function closeClearHistoryModal() {
+        document.getElementById('clear-history-modal-overlay').classList.add('hidden');
+    }
+
+    async function submitClearHistoryPassword() {
+        const val = document.getElementById('clear-history-password-input').value;
+        if (isKnownBalancePassword(val)) {
+            cachedHistory = [];
+            if (currentUserId) {
+                try { await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { history: [] }); } catch (e) { console.error(e); }
+            }
+            renderHistory();
+            closeClearHistoryModal();
+        } else {
+            document.getElementById('clear-history-password-error').classList.remove('hidden');
+        }
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        if (!list) return;
+        const hist = loadHistory();
+        if (hist.length === 0) {
+            list.innerHTML = '<p class="history-empty">Chưa có lịch sử làm bài.</p>';
+            return;
+        }
+        list.innerHTML = hist.map(h => {
+            const money = typeof h.money === 'number' ? h.money : 0;
+            const moneyClass = money >= 0 ? 'positive' : 'negative';
+            const moneySign = money > 0 ? '+' : '';
+            return `
+            <div class="history-item">
+                <div class="history-top">
+                    <span class="history-date">${h.date}${h.opLabel ? ' • ' + h.opLabel : ''}</span>
+                    <span class="history-score">${h.score}/10</span>
+                </div>
+                <div class="history-detail">Số câu: ${h.totalAnswered} • Đúng: ${h.correct} • Sai: ${h.wrong} • TB: ${h.avgTime}s/câu</div>
+                <div class="history-money ${moneyClass}">${moneySign}${money.toLocaleString('vi-VN')} VNĐ</div>
+            </div>
+        `;
+        }).join('');
+    }
+    // -------------------------------------------------------------------------
+
+    // ---- tài khoản làm bài: Kiểm Tra đúng 1 câu +10 VNĐ, sai 1 câu -10 VNĐ,
+    // Extra đúng +10 sai -20 (cộng gộp 1 lần lúc kết thúc), Ôn không tính tiền;
+    // có thể âm; lưu trên Firestore theo từng tài khoản, giống lịch sử làm bài.
+    //
+    // "Tổng thu" (cachedTotalEarned) là chỉ số riêng cho bảng xếp hạng: nó CHỈ
+    // tăng khi có tiền được cộng thêm (đúng câu hỏi, thưởng Extra, hoặc admin
+    // cộng tiền bằng mật khẩu ad0804) và KHÔNG BAO GIỜ bị trừ đi, kể cả khi
+    // làm sai câu hoặc admin rút bớt tiền (trừ bằng duc123/ad0804). Nhờ vậy nó
+    // phản ánh đúng "đã kiếm được tổng cộng bao nhiêu từ lúc tạo tài khoản". ----
+    function loadBalance() {
+        return cachedBalance;
+    }
+
+    async function saveBalanceAndEarned(newBalance, newEarned) {
+        cachedBalance = newBalance;
+        cachedTotalEarned = newEarned;
+        if (!currentUserId) return;
+        try {
+            await fsMod.updateDoc(fsMod.doc(fbDb, 'users', currentUserId), { balance: newBalance, totalEarned: newEarned });
+            await fsMod.setDoc(fsMod.doc(fbDb, 'leaderboard', currentUserId), { username: currentUsername, balance: newBalance, totalEarned: newEarned }, { merge: true });
+        } catch (e) { console.error('Lỗi lưu số dư:', e); }
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    async function openLeaderboard() {
+        showScreen('leaderboard-screen');
+        const list = document.getElementById('leaderboard-list');
+        list.innerHTML = '<p class="history-empty">Đang tải...</p>';
+        try {
+            const q = fsMod.query(
+                fsMod.collection(fbDb, 'leaderboard'),
+                fsMod.orderBy('totalEarned', 'desc'),
+                fsMod.limit(10)
+            );
+            const snap = await fsMod.getDocs(q);
+            if (snap.empty) {
+                list.innerHTML = '<p class="history-empty">Chưa có ai trên bảng xếp hạng.</p>';
+                return;
+            }
+            const medals = ['🥇', '🥈', '🥉'];
+            let rank = 0;
+            list.innerHTML = snap.docs.map(docSnap => {
+                rank++;
+                const data = docSnap.data();
+                const isMe = docSnap.id === currentUserId;
+                const badge = medals[rank - 1] || `#${rank}`;
+                const earned = typeof data.totalEarned === 'number' ? data.totalEarned : 0;
+                const balClass = earned >= 0 ? 'positive' : 'negative';
+                const name = escapeHtml(data.username || '???') + (isMe ? ' (bạn)' : '');
+                return `
+                <div class="lb-item ${isMe ? 'lb-me' : ''}">
+                    <span class="lb-rank">${badge}</span>
+                    <span class="lb-name">${name}</span>
+                    <span class="lb-balance ${balClass}">${earned.toLocaleString('vi-VN')} VNĐ</span>
+                </div>`;
+            }).join('');
+        } catch (e) {
+            console.error('Lỗi tải bảng xếp hạng:', e);
+            list.innerHTML = '<p class="history-empty">Lỗi tải bảng xếp hạng, thử lại nhé.</p>';
+        }
+    }
+
+    // delta > 0 -> cộng thêm vào số dư VÀ vào tổng thu tích luỹ (leaderboard)
+    // delta < 0 -> chỉ trừ số dư, tổng thu tích luỹ giữ nguyên (rút ra không tính)
+    async function addToBalance(delta) {
+        const newBal = loadBalance() + delta;
+        const newEarned = delta > 0 ? cachedTotalEarned + delta : cachedTotalEarned;
+        await saveBalanceAndEarned(newBal, newEarned);
+        updateBalanceDisplay();
+    }
+
+    function updateBalanceDisplay() {
+        const el = document.getElementById('balance-display');
+        if (!el) return;
+        const bal = loadBalance();
+        el.innerText = `Số dư: ${bal.toLocaleString('vi-VN')} VNĐ`;
+        el.classList.toggle('balance-negative', bal < 0);
+    }
+
+    // ---- modal tuỳ chỉnh số dư: phải nhập đúng mật khẩu mới thấy được
+    // và chỉnh được số dư.
+    // - Mật khẩu duc123: chỉ được TRỪ tiền (bất kể nhập số dương hay âm,
+    //   hệ thống luôn trừ đi giá trị tuyệt đối của số đã nhập).
+    // - Mật khẩu ad0804: được CỘNG và TRỪ tự do (nhập số dương để cộng thêm,
+    //   số âm để trừ bớt), giống hành vi cũ. ----
+    function openBalanceModal() {
+        document.getElementById('balance-modal-overlay').classList.remove('hidden');
+        document.getElementById('balance-modal-password-view').classList.remove('hidden');
+        document.getElementById('balance-modal-adjust-view').classList.add('hidden');
+        document.getElementById('balance-password-input').value = '';
+        document.getElementById('balance-password-error').classList.add('hidden');
+    }
+
+    function closeBalanceModal() {
+        document.getElementById('balance-modal-overlay').classList.add('hidden');
+    }
+
+    function submitBalancePassword() {
+        const val = document.getElementById('balance-password-input').value;
+        if (val === BALANCE_PASSWORD_FULL) {
+            balanceModalMode = 'full';
+        } else if (val === BALANCE_PASSWORD_SUB) {
+            balanceModalMode = 'sub';
+        } else {
+            document.getElementById('balance-password-error').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('balance-modal-password-view').classList.add('hidden');
+        document.getElementById('balance-modal-adjust-view').classList.remove('hidden');
+        document.getElementById('balance-modal-current-num').innerText = loadBalance().toLocaleString('vi-VN');
+        document.getElementById('balance-adjust-input').value = '';
+
+        const hintEl = document.getElementById('balance-adjust-hint');
+        const inputEl = document.getElementById('balance-adjust-input');
+        if (balanceModalMode === 'sub') {
+            hintEl.innerText = 'RÚT TIỀN';
+            inputEl.placeholder = 'Tiền muốn trừ';
+        } else {
+            hintEl.innerText = 'duc dep trai vcl';
+            inputEl.placeholder = 'Nhập số (vd: 100 hoặc -100)';
+        }
+    }
+
+    function submitBalanceAdjust() {
+        const raw = document.getElementById('balance-adjust-input').value;
+        let delta = parseInt(raw);
+        if (isNaN(delta)) return;
+        if (balanceModalMode === 'sub') {
+            delta = -Math.abs(delta); // luôn trừ, bất kể dấu nhập vào
+        }
+        addToBalance(delta);
+        document.getElementById('balance-modal-current-num').innerText = loadBalance().toLocaleString('vi-VN');
+        document.getElementById('balance-adjust-input').value = '';
+    }
+    // -------------------------------------------------------------------------
+
+    // ---- bấm "Làm lại": chỉ reset điểm/tiến trình chơi và quay về màn hình
+    // chính, KHÔNG reload cả trang để nhạc đang phát không bị dừng/reset ----
+    function restartApp() {
+        clearInterval(timerInterval);
+        clearSavedGameState();
+        sessionPlan = [];
+        position = 0;
+        scoreRight = 0;
+        scoreWrong = 0;
+        sessionQuestionTimes = [];
+        currentQuestion = null;
+        document.getElementById('score-right').innerText = 0;
+        document.getElementById('score-wrong').innerText = 0;
+        renderHistory();
+        updateBalanceDisplay();
+        showScreen('main-menu');
+    }
+
+    function addDigit(n) { document.getElementById('answer').value += n; }
+    function clearInput() {
+        const el = document.getElementById('answer');
+        el.value = el.value.slice(0, -1);
+    }
+
+    // ---- visual feedback helpers (only visual, does not change scoring logic) ----
+    function showFeedback(isCorrect) {
+        const overlay = document.getElementById('feedback-overlay');
+        const fxText = document.getElementById('fx-text');
+        const gameScreen = document.getElementById('game-screen');
+
+        overlay.classList.remove('show-correct', 'show-wrong');
+        void overlay.offsetWidth; // restart animation
+        fxText.innerText = isCorrect ? '✓ ĐÚNG!' : '✗ SAI!';
+        overlay.classList.add(isCorrect ? 'show-correct' : 'show-wrong');
+
+        gameScreen.classList.remove('correct-pulse', 'wrong-pulse', 'shake-anim');
+        void gameScreen.offsetWidth;
+        gameScreen.classList.add(isCorrect ? 'correct-pulse' : 'wrong-pulse');
+        if (!isCorrect) gameScreen.classList.add('shake-anim');
+
+        if (isCorrect) spawnSparks();
+    }
+
+    function spawnSparks() {
+        const emojis = ['✨', '⚡', '⭐'];
+        const rect = document.getElementById('game-screen').getBoundingClientRect();
+        for (let i = 0; i < 6; i++) {
+            const s = document.createElement('span');
+            s.className = 'spark';
+            s.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            s.style.left = (rect.left + rect.width / 2 + (Math.random() * 160 - 80)) + 'px';
+            s.style.top = (rect.top + rect.height / 2) + 'px';
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 950);
+        }
+    }
+    // -------------------------------------------------------------------------
+
+    // ---- làm sai câu nào thì cho hiện lại câu đó ở một vị trí trong khoảng
+    // 3-6 câu sau (thế chỗ 1 câu chưa làm tới), để ôn ngay trong lúc còn nhớ.
+    // Tổng số câu KHÔNG tăng lên, vì chỉ ghi đè vào 1 slot còn trống phía sau ----
+    function scheduleRetry(question, answeredPos) {
+        const offset = 3 + Math.floor(Math.random() * 4); // 3..6 câu sau
+        let target = answeredPos + offset;
+
+        // không còn đủ chỗ ở cuối -> nhét vào slot cuối cùng còn lại (nếu có)
+        if (target >= sessionPlan.length) target = sessionPlan.length - 1;
+        // slot đó phải là slot CHƯA hiện ra (>= position hiện tại)
+        if (target < position) target = sessionPlan.length - 1;
+
+        if (target >= position && target < sessionPlan.length) {
+            sessionPlan[target] = { ...question };
+        }
+        // nếu không còn chỗ nào phù hợp (gần hết bài) thì đành bỏ qua,
+        // để không phá vỡ tổng số câu cố định
+    }
+    // -------------------------------------------------------------------------
+
+    function checkAnswer(isTimeout = false) {
+        let val = parseInt(document.getElementById('answer').value);
+        let isCorrect = !isTimeout && val === currentCorrect;
+        let elapsed = (Date.now() - questionStartTime) / 1000;
+        sessionQuestionTimes.push(elapsed);
+
+        if (isCorrect) {
+            scoreRight++;
+            if (currentMode === 'kiemtra') addToBalance(10);
+            // 'extra': cộng gộp lúc kết thúc bài (finishSession); 'on': không tính tiền
+        } else {
+            scoreWrong++;
+            if (currentMode === 'kiemtra') addToBalance(-10);
+            scheduleRetry(currentQuestion, currentQuestionPos);
+        }
+        document.getElementById('score-right').innerText = scoreRight;
+        document.getElementById('score-wrong').innerText = scoreWrong;
+
+        showFeedback(isCorrect);
+
+        setTimeout(nextQuestion, 500);
+    }
+
+    // khởi động Firebase ngay khi mở trang; onAuthStateChanged sẽ tự quyết định
+    // hiển thị màn hình đăng nhập hay màn hình chính (kèm số dư/lịch sử đúng người)
+    initFirebase();
+</script>
+</body>
+</html>
